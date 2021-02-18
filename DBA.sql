@@ -1,9 +1,10 @@
+--02/17(수)
 -- 여기에는 명령어를 입력할 수 있는 창이다.  맨 오른쪽 하드모양은 이 질의를 어디에서 실행할 것이냐?
 -- 계정 별로 DB가 있을건데
-됨
+
 SELECT * FROM DICt;  --dictionary테이블에 있는거 다 조회해라 (대소문자 안가림)
 --오라클db에 대한 정보를 가지고 있는 테이블 : Data Dictionary라고 
--- select * from dictionary; 이렇게 써도 
+-- SELECT * FROM DICTIONARY; 이렇게 써도 
 -- 현재 db에 등록된 
 select * from dba_users;
 --  계정은 관리자 계정, 사용자 계정으로 나뉜다.
@@ -37,3 +38,32 @@ grant resource, connect to kh;
 
 create user test identified by test;
 grant resource, connect to test;
+
+-- 02/18(목)
+-- 얘를 실행할 수 있는 녀석은 system or sys as sysDBA
+
+--오라클에서 항상 중요한 것은 명령을 수행할 권한이 있는가? > 그래서 sys나 system이 굉장히 중요하다. 
+-- resource : 테이블을 생성/조작할 수 있는 권한
+-- connection : 할당된 영역에 접속할 수 있는 권한
+
+
+-- kh계정정보 확인하기
+select * from tab; --게정이 가지고 있는 전체 테이블 조회  tab (table의 약자)
+
+select * from department;
+select * from employee;
+select * from job;
+select * from location;
+select * from national;
+select * from sal_grade;
+
+
+
+
+
+
+
+
+
+
+
