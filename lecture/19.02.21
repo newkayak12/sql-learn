@@ -1,0 +1,479 @@
+
+
+ -- ******************************************************************2월 19일(금)
+ -- select 계속
+ -- 문자열 함수에 대해서 알아보자
+ 
+ 
+ --** length :  문자열 || 컬럼의 길이를 알려주는 기능
+ 
+ Select Length('안녕하세요') 
+ from dual;
+ 
+ --기존 테이블에서 찾으면
+ select emp_name, length(emp_name), email, length(email)
+ from employee;
+ 
+ --이메일의 글자수가 16이상인 사원 출력
+ 
+ select emp_name, email, length(email)
+ from employee
+ where length(EMAIL)>=16;
+ 
+ 
+ --**lengthB : 문자열||컬럼의 길이 byte단위로 출력
+select emp_name, lengthB(emp_name) 
+from employee;
+--오라클 express버전에서 한글을 3byte로 / enterprise는 2byte... 아오!ㅋㅋㅋ
+
+select length('asv') 
+from employee;
+ 
+ --** instr
+ --찾는 문자열이 지정한 위치부터 지정한 횟수 번째에 나타나는 위치 반환(인덱스 번호)
+ --instar(문자열|| 컬럼(target)  , 문자열|| 컬럼( reference)  , 시작위치, 몇 번째에서 찾을 것인가? > 중복값이 있을 때 사용)
+ 
+ select instr ('kh 정보교육원', 'kh')
+ from dual;
+ 
+ --오라클은 인덱스 시작이 1 (자바는 0) 
+ 
+ 
+ select instr('kh정보교육원 kh수강생화이팅', 'kh', 3)
+ from dual;
+ -- 9번째 (시작점이 3번째 인덱스)
+ 
+ 
+ select instr('kh정보교육원 kh수강생화이팅  kh Rcalss힘내라', 'kh', 3, 2)
+ from dual;
+ -- 18 시작점이 3 , 중복이 되는 두 번째 값
+ 
+ 
+ 
+ select instr('kh정보교육원 kh수강생화이팅 kh Rcalss힘내라', 'kh', -1)
+ from dual;
+ --역순으로 색인 시작 물론 인덱스 번호는 앞에서부터 시작하니까 그래서 
+ -- 18이 나옴 lastIndexOf랑 비슷
+ 
+ 
+ --employee 테이블에서  email의 @의 위치를 구하세요
+ 
+ 
+ select email, instr(email, '@')
+ from employee;
+ --물론 얘 혼자 쓰이는건 아님 subString이랑 indexOf랑 같이 쓰인 것처럼 ... 한 번에 할 수 있도록 좀 만들어놔!!
+ 
+ 
+ --LPAD/RPAD :할당된 공간에서 빈 공간의 왼/오른쪽을 특정문자로 채우는 기능을 한다.
+ --L/RPAD(문자열||컬럼, 공간의 크기, 문자)
+ -- 공간은! byte단위로 본다. 
+ select Lpad('유병승', 10 , '!')
+ from dual;
+ 
+ --!!!!유병승
+ 
+ select Rpad('ybs', 10 , '!')
+ from dual;
+ 
+ --ybs!!!!!!!
+ 
+ select rpad(email, 16, '#') 
+ from employee;
+ 
+ --활용
+ 
+ select rpad('ybs', 16) 
+ from employee;
+ --첨부 문자를 안쓰면 default로 띄어쓰기
+ 
+ select rpad('ybs', 16, '') 
+ from dual;
+ 
+ --왜 null??
+ -- 오라클은 자바와 다르게 내부 구조를 볼 수가 없어서 예측컨데 dummy랑 연산을 해서 dummy가 된거 정도로 생각하자
+ 
+ 
+ -- 빼는 것
+ --ltrim/rtrim : 문자열의 왼쪽, 오른쪽에 있는 공백, 지정문자를 제거
+ -- l/rtrim(문자열|| 컬럼 [, 문자])    * []는 생략 가능
+
+ 
+ 
+ select LTRIM('       병승       ')
+ from dual;
+--'병승       '
+
+select RTRIM('       병승       ')
+ from dual;
+ --'       병승'
+ 
+ 
+ select trim('           병승              ')
+ from dual;
+ -- '병승'
+ 
+ -- 데이터 입력시 본인도 모르게 공란이 들어가는 경우가 있을 수도 있다. 문제는 검색을 했을 때 공란 때문에 제대로된 검색 결과를 보여주지 않을 수가 있다. 따라서 trim을 이용해서 공백을 제거해서 집어 넣는 것이 중요하다.
+ 
+ 
+ 
+ select ltrim (00000000123123, '0')
+ from dual;
+ 
+ 
+ select ltrim(00000100101010101010, '0')
+ from dual;
+ 
+ 
+  select ltrim(00000100101010101011, '01')
+ from dual;
+ 
+ --(null) 이게 01로 묶어서 비교하는게 아니라 0 또는 1로 잡아서 0, 1이 들어간거는 다 지워버린다는 소리야  000000100101010, 0 은 1을 만나는 순간 멈춰버리는거고
+ 
+ 
+ 
+ --12314123081203유병승
+ select ltrim('123123123123유병승', '1234567890')
+ from dual;
+ 
+ 
+ --123123840유병승1092358129387
+ select ltrim(rtrim('123123840유병승1092358129387','1234567890'),'1234567890')
+ from dual;
+ 
+ 
+ 
+ --trim : 양쪽, 옵션에 따라서 왼/오른/양쪽 특정 문자를 제거한다. (단, 문자는 오로지 1개)
+ -- 생략하면 공백을 날림
+ -- trim(문자열 || 컬럼 -> 공백제거    
+ -- trim(문자열 || 컬럼[, ' 문자열 ']) -> 양쪽에서 문자를 제거 단 1개****
+ -- trim( 한개 문자 from 문자열||컬럼) 양쪽에서 문자를 제거
+ --trim(leading\\trailing\\both 문자 from 문자열||컬럼)
+ 
+ select trim(both '1' from '11111유병승111111')
+ from dual;
+
+ select trim(leading '1' from '11111유병승111111')
+ from dual; 
+ 
+  select trim(trailing '1' from '11111유병승111111')
+ from dual;
+ 
+ --substr (subString) : 컬럼||문자열을 지정한 위치부터 지정한 개수 만큼  잘라내기
+ -- substr(문자열||컬럼, 시작위치[, 길이])
+ 
+ select substr('ShowMeTheMoney', 5)
+ from dual;
+ 
+ -- 시작위치 포함해서 잘라내고
+ 
+ select substr('ShowMeTheMoney', 5, 2)
+ from dual;
+ 
+ -- 2 글자를 잘라냄 (얘는 index, index가 아니다)
+ 
+ 
+  select substr('ShowMeTheMoney', -3, 3)
+ from dual;
+ 
+ --그냥 음수면 y가 -1  e 가 -2 .... 이렇게 인덱스가 붙는거지
+ 
+ --생일
+ select emp_name, substr(emp_no, 1 , 6)
+ from employee;
+ 
+ --이렇게 활용하고
+ select emp_name, emp_no
+ from employee
+ where substr(emp_no, 8 , 1) =2;
+ 
+ 
+ select substr(email, instr(email,'@')+1)
+ from employee;
+ 
+ --영문자 upper/lower/inicatp(첫글자만 대문자)
+ 
+ 
+ select upper('yubyeonseung')
+ from dual;
+ 
+ select lower('KimYeJin')
+ from dual;
+ 
+ select initcap('orcAle is hArd for me')
+ from dual;
+ 
+ --띄어쓰기를 기준으로 단어로 인식해서 띄어쓰면 다 첫 글자를 대문자로 바꿔버리네
+ --이외의 대문자는 소문자로 바꿔버리네
+ 
+ 
+ --활용
+ 
+ select email
+ from employee
+ where email like lower('%KH%');
+ 
+ 
+ -- concat : concatenation(연쇄) , 연결연산을 하는 함수, ==,|| (자바의 concat)
+ -- concat(문자열, || 컬럼, 문자열||컬럼)
+ 
+ select (concat('여러분', ' 도망가세요'))
+ from dual;
+ 
+ 
+ -- replace : 특정 문자를 변경하는것
+ -- replace(타겟 문자||컬럼, 변경될 문자, 교체될 문구)
+ select replace('i love my life', 'love', 'hate')
+ from dual;
+ 
+ --예를 들어서
+ select replace ( email, 'kh.or.kr', 'gmail.com')
+ from employee;
+ 
+ --reverse : 해당 문자열 거꾸로 만드는 기능
+ 
+ select reverse('abc')
+ from dual;
+ 
+ 
+ select reverse('가나다')
+ from dual;
+ --byte수로 계산하는 거여서 한글이... 깨짐
+ 
+ 
+ --translate : 매칭되어있는 값으로 출력
+ select translate('010-2711-4160', '0123456789', '영일이삼사오육칠팔구')
+ from dual;
+ 
+ --1:1 매칭
+ 
+ -- 여기까지 문자처리 함수
+ 
+ --abs : 절대값을 처리하는 함수
+ select abs(10), abs(-10)
+ from dual;
+ 
+ 
+ -- mod : 나머지
+ -- mod(숫자, 나눌 값)
+ select  mod(3, 2) as "나머지"
+ from dual;
+ 
+ 
+ select  mod(3, 2)|| '(은)는 3/2의 나머지' as "나머지"
+ from dual;
+ 
+ 
+ select mod (salary, 3)
+ from employee;
+ 
+ select * 
+ from employee
+ where mod(salary, 3) =0;
+ 
+ --소수점 처리하는 함수들
+ 
+ -- round : 소수점 반올림
+ --round(소수점 자리 숫자) -> 소수점에서 반올림
+
+ select round(126.2923)
+ from dual;
+ 
+  -- round (소수점이 있는 숫자 [,자리수]) -> 해당 자리수까지 남기고 그 밑의 수를 반올림해서 표현함
+  
+ select round(126.2923, 1)
+ from dual;
+ 
+ --round 의 자리수에 -값이 들어갈 수 있다. : 소수점을 기준으로 +면 소수점 아래쪽/ -면 소수점 위의 자연수 
+ 부분으로
+ select round (126.2923, -1)
+ from dual;
+ 
+ 
+ 
+  --floor : 소수점 자리를 버림
+  select floor ( 123.456789)
+  from dual;
+  
+  -- trunc : 버림 (특정 자릿수에서)
+  --디폴트는 floor랑 비슷한데,
+  select trunc(123.456)
+  from dual;
+ 
+  select trunc(123.456,2)
+  from dual;
+ 
+ -- 이러면 2자리까지 표시
+ 
+ select trunc(123.123, -1)
+ from dual;
+ -- 120
+ 
+ 
+ --ceil : 올림
+ select ceil(122.123)
+ from dual;
+ 
+  -- 얘는 위치 지정 안됨
+  
+  
+  
+ -- 날짜처리 함수
+ --sysdate : 로컬 날짜 출력
+ 
+ select sysdate, current_date, localtimestamp, current_timestamp
+ from dual;
+ 
+ select sysdate,to_date(sysdate,'yyyy/mm/dd hh24:mi:ss')
+ from dual;
+ 
+ --날짜도 산순연산이 가능+/-
+ -- 일자를 계산한다. 
+  
+  select sysdate-1 as "어제", sysdate as "오늘", sysdate+1 as "내일"
+  from dual;
+  
+  --날짜끼리 계산 number 타입의 숫자가 나옴
+  
+  select sysdate - to_date('01/02/24', 'rr/mm/dd')
+  from dual;
+  
+  -- add_month: 개월수를 연산해주는 함수 개월 수를 더해주는 함수
+  --add_month( 날짜, 더할 개월)
+  
+  select add_months(sysdate, 3)
+  from dual;
+ 
+ --employee 테이블에서 입사 3개월 후 날짜를 구하세요
+ select hire_date, add_months(hire_date, 3)
+ from employee;
+ 
+ --오늘부로 선생님이 군대... 1년 6개월
+ -- 전역일 구하고 전역까지구하는 하루 3끼
+ 
+ select add_months(sysdate, 18) as "전역일" , (add_months(sysdate, 18)-sysdate)*3||'끼' as "식사"
+ from dual;
+ 
+ 
+ -- months_between : 개월 수를 구하는 함수
+ -- months_between( day1, day2)
+ select ceil( months_between( to_date('21/07/10', 'rr/mm/dd'), sysdate))
+ from dual;
+ 
+ --employee 테이블에서 사원의 근무 개월 수를 구하자
+ -- 이름, 부서, 직책, 근무개월수 조회
+ select emp_name, dept_code, job_code, floor( (months_between(sysdate, hire_date) ) )||'일'
+ from employee;
+ 
+ 
+ -- nexday : 날짜에 입력받은 요일 중 가장 가까운 다음 요일을 출력
+ select sysdate , next_day(sysdate, '월요일')
+ from dual;
+ 
+ select next_day(sysdate, '금') 
+ from dual;
+ --오라클에 locale설정이 있는데 (사용 지역) > 언어 설정 korea
+ 
+ 
+ --last_day : 그 달의 마지막 날을 출력
+ select last_day(sysdate)
+ from dual;
+ 
+ select * 
+ from v$nls_parameters;
+ 
+ 
+ -- extract :  날짜의 년, 월, 일을 따로 출력할 수 있게함
+ -- extract(year from 날짜) : 년도를 출력
+ -- extract(month from 날짜) : 월을 출력
+ -- extract(day from 날짜) : 일을 출력
+ 
+ select extract( year from sysdate)||'/' as "년", extract( month from sysdate)||'/' as "월", extract (day from sysdate) as "일"
+ from dual;
+ 
+ --sysdate는 기본적으로 년/월/일을 출려하도록 설계
+ select extract(hour from cast (sysdate as timestamp))||'시', extract(minute from cast (sysdate as timestamp))||'분', extract(second from cast (sysdate as timestamp))||'초'
+ from dual;
+ 
+
+ 
+ select emp_name, dept_code, extract( year from hire_date)
+ from employee
+where extract(year from hire_date ) between 1990 and 2000;
+ 
+ 
+ 
+ --형변환 함수
+ --오라클에서도 자료형이 있어요
+ -- 오라클에서 데이터를 저장하기 위한 type을 가지고 있음
+ -- 기본적으로 많이 쓰는 것은 
+ -- number(숫자) : 정수/소수점 다 보관합니다. (int + double)
+ -- 문자 : char, varchar2, nchar, nvarchar2  * varchar2권장
+        --var의 여부는 가변길이인지 아닌지에 대한 여부
+                -- 그래서 char는 고정 길이의 문자
+--create table test(
+--   name char(10),   --김상현 > 9바이트 1바이트는 유휴비트로 버림  : 최대 2000바이트
+--  name2 varchar2(10) --> 1바이트는 알아서 반환 (축소) : 최대 4000바이트
+--);
+
+
+--nchar/ nvarchar2 는 유니코드로 처리 (특수 기호 등) 똑같이 2000/4000바이트
+
+
+
+--날짜 타입은 date
+
+
+-- 형변환 함수
+-- to_char : 어떤 값을 문자로 변경
+-- to_date : 어떤 값을 날짜로
+-- to_number : 어떤 값을 숫자로(date형은 변경이 안된다.) > 또한 숫자형으로 작성이 되어있어야 변경이 가능하다. 
+
+
+
+-- ** to char 
+-- date나 number형 자료형을 character혀응로 변경하는 것
+Select to_char(sysdate, 'yyyy-mm-dd dy hh24:mi:ss'), to_char(sysdate+1, 'yyyy-mm-dd')
+from dual;
+
+--nubmer -> character 형으로 변경
+select 12345, to_char(123222245,'999,999,999')
+,to_char(431231231231235123, '999,999,999,999,999,999,999,999')
+,to_char(8500000,'L999,999,999,999')
+,to_char(850230, '$000,000,000')
+,to_char(80.5, '999,999.0000')
+,to_char(100, '999,999.00')
+from dual;
+
+--999,999은 값이 표현 X 000,000은 0으로 채움
+-- 자리수 넘으면 ###으로 표현
+
+
+--employee테이블에서 급여를 이쁘게 출력하게
+-- 사원명 부서코드 월급
+
+
+select emp_name, dept_code, to_char(salary, 'L999,999,999,999,999,999,999,999,999')
+from employee;
+
+
+
+--to_date : 숫자, 문자를 날짜로 변경하는 함수
+select to_date('19960626', 'yyyymmdd')
+from dual; --:)
+--00/01/01' > 자동 형변환
+
+select to_char( to_date('19981027 14:18:15', 'yyyymmdd hh24:mi:ss'), 'yyyy/mm/dd dy hh24:mi:ss')
+from dual;
+
+
+select to_date(19960925, 'yymmdd')
+from dual;
+
+select to_date('000224', 'yymmdd')
+from dual
+
+
+
+
+
+
