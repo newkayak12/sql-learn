@@ -1,0 +1,217 @@
+--21.02.22수
+--TO_CHAR로 NUMBER/DATE를 문자로 바꿔봤지
+--TO_DATE로 날짜로 바꿔보기도 했고
+--둘 다 써서  문자를 날짜로, 표현 방식에 맞추고 다시 문자로 바꿔보기도 했고
+
+-- TO_NUMBER를 이제 써볼 차례!
+--TO_NUMBER : 문자형 데이터를 숫자형으로 변환 -> 산술 연산 할 때 사용
+--TO_NUMBER( 문자||컬럼, 형식)
+
+
+SELECT '1,000,000'+'2,000,000' 
+FROM DUAL;
+--예는 넘버가 아닌데 어떻게 계산해!
+--ORA-01722: INVALID NUMBER
+--01722. 00000 -  "INVALID NUMBER"
+--*CAUSE:    THE SPECIFIED NUMBER WAS INVALID.
+--*ACTION:   SPECIFY A VALID NUMBER.
+
+SELECT TO_NUMBER('1,000,000', '999,999,999') + TO_NUMBER('2,000,000', '999,999,999')
+FROM DUAL;
+--**문자열에서 숫자로 바꿀 때 애초에 숫자형으로 쓸 수 있는 것만 바꿀 수 있다. 
+
+
+SELECT TO_NUMBER('123A', '999')
+FROM DUAL;
+--ORA-01722: INVALID NUMBER
+--01722. 00000 -  "INVALID NUMBER"
+--*CAUSE:    THE SPECIFIED NUMBER WAS INVALID.
+--*ACTION:   SPECIFY A VALID NUMBER.
+
+
+
+
+-- 여기까지 각 형에 대해서 변환하는 것을 해봤다.
+
+
+--NVL() : NULL값을 특정 값(문자,숫자)으로 대체시켜 주는 함수 
+--NULL을 대체하는 이유는 연산이 안되니까! 계산하면  NULL나오잖아
+
+SELECT EMP_NAME, SALARY, BONUS, (SALARY+(SALARY*BONUS))*12
+FROM EMPLOYEE;
+
+--이러면 NULL 나오잖아 그래서 얘를 대체하는거지
+
+--NVL(컬럼, 대체값)
+--여기에 만약 NULL이면 0으로 초기화
+
+SELECT EMP_NAME, SALARY, BONUS AS "NOT NVL", NVL(BONUS, 0) AS "NVL"
+FROM EMPLOYEE;
+
+SELECT EMP_NAME, SALARY, BONUS, (SALARY+( SALARY*NVL(BONUS,0) ))*12
+FROM EMPLOYEE;
+
+--조건에 따라서 이렇게 할 수 있다.
+
+--DEPT_CODE가  NULL이면 인턴으로 출력
+-- 사원명, DEPT_CODE
+
+SELECT EMP_NAME, NVL(DEPT_CODE,'인턴')
+FROM EMPLOYEE
+WHERE DEPT_CODE IS NULL;
+
+--NVL2() : NULL이면, NULL이 아니면 두 가지를 다 대체하는 함수 
+-- 많네 많아
+
+SELECT EMP_NAME, BONUS, NVL2(BONUS, '있다', '없다')
+FROM EMPLOYEE;
+
+--이렇게 
+--선동일	0.3	있다
+--송종기	NULL	없다
+--노옹철	NULL	없다
+
+--GREATEST, LEAST : 최대 최소구하기 (컬럼이나 특정 값에서)
+SELECT GREATEST(1,2,3,4,5),GREATEST('가','나','다')
+FROM DUAL;
+
+SELECT LEAST(1,2,3,4,5), LEAST('가','나','다')
+FROM DUAL;
+
+SELECT GREATEST( 
+                    SELECT SALARY
+                     FROM EMPLOYEE)
+FROM EMPLOYEE;
+--이거는 안되네 컬럼까지는
+-- 서브쿼리로는 사용할 수가 없네.
+
+
+--DECODE 선택함수 : 자바의 SWITCH와 비슷
+--DECODE(표현식, 조건, 결과, 조건1, 결과, 조건2, .......)
+
+SELECT EMP_NAME, EMP_NO, 
+            DECODE(SUBSTR(EMP_NO,8,1),'1','남',
+                                                         '2', '여',
+                                                        '3', '남',
+                                                      '4', '여') AS 성별
+FROM EMPLOYEE;            
+
+
+SELECT EMP_NAME, JOB_CODE,
+    DECODE (JOB_CODE, 'J1', '대표', 
+                            ' J2', '부사장', 
+                            '기타')
+FROM EMPLOYEE;    
+-- 얘는 동등비교로 일치하는 값으로
+
+--CASE문 :  DECODE와 활용이 비슷함
+-- CASE
+--      WHEN  조건 1 THEN 결과1
+--      WHEN  조건 2 THEN 결과2
+--      WHEN  조건 3 THEN 결과3
+--      ELSE 위의 조건 다 아니면 결과
+--END
+--범위도 가능
+
+SELECT EMP_NAME, EMP_NO,
+    CASE
+        WHEN SUBSTR(EMP_NO,8,1) = 1 THEN '남'
+        WHEN SUBSTR(EMP_NO,8,1) = 2 THEN '여'
+        WHEN SUBSTR(EMP_NO,8,1) = 3 THEN '남'
+        WHEN SUBSTR(EMP_NO,8,1) = 4 THEN '여'
+        ELSE '사람이 아님'
+    END AS "성별",
+    
+    
+    CASE 
+        WHEN SALARY>4000000 THEN '고액연봉 받는 사람'
+        WHEN SALARY>3000000 THEN '근근히 벌어먹고 사는 사람'
+        ELSE  '열심히 사는 사람'
+    END    AS "클래스"
+FROM EMPLOYEE;        
+--IF ELSE처럼도 쓸 수 있지
+--"별칭은 END 뒤에 왜냐하면 얘가 한 문장이니까!"
+
+
+--이렇게 쓸 수 있다. 와 근데 END AS "성별" 뒤에 ','을 써야되는게 개소름이네 ㅋㅋ
+
+
+SELECT EMP_NAME, 
+    CASE SUBSTR(EMP_NO,8,1)
+        WHEN '1' THEN '남'
+        ELSE '여'
+    END AS "성별"
+FROM EMPLOYEE;  
+
+--DECODE랑 같다고?? 이게 진짜 SWITCH 같긴 하네 ㅋㅋ
+
+--독특한거??
+
+--사원 테이블에서 현재 나이를 구해보세요
+-- 사원 번호, 사원명, EMP_NO, 나이
+
+SELECT EMP_ID, EMP_NAME, EMP_NO, (EXTRACT(YEAR FROM SYSDATE) - TO_NUMBER(CONCAT (19, SUBSTR(EMP_NO, 1,2))))+1 ||'세' AS "나이"
+FROM EMPLOYEE;
+
+
+
+SELECT EMP_ID,EMP_NAME,EMP_NO,
+    EXTRACT(YEAR FROM SYSDATE) - EXTRACT(YEAR FROM TO_DATE(SUBSTR(EMP_NO,1,2),'YY')) AS "나이(YY)",
+    EXTRACT(YEAR FROM SYSDATE) - EXTRACT(YEAR FROM TO_DATE(SUBSTR(EMP_NO,1,2),'RR')) AS "나이(RR)"
+FROM EMPLOYEE;
+
+-- 번호  이름             민번                      YY    RR
+--200	선동일	621235-1985634	   -41	59
+--201	송종기	631156-1548654   -42	58
+
+-- RR과 YY의 차이?? 신박한??
+INSERT INTO KH.EMPLOYEE 
+VALUES ('250','고두밋','470808-2123341','GO_DM@KH.OR.KR',NULL,'D2','J2','S5',4480000,NULL,NULL,TO_DATE('94/01/20','RR/MM/DD'),NULL,'N');
+COMMIT;
+--일단 테이블 추가하고 한 번 보자고요
+
+--250	고두밋	470808-2123341	-26	-26 왜 RR도 -가 나지?
+
+
+
+--RR 포맷
+--4자리로 처리할때는 YYYY, RRRR은 동일하다.
+--두자리 처리시, 현재년도기준으로 RR, YY의 처리가 달라짐.
+
+--아래는 RR계산 표
+----------------------------------------------------------------------
+--현재년도      입력년도      계산년도
+----------------------------------------------------------------------
+--00~49       00~49       현재세기
+--00~49       50~99       전세기
+--50~99       00~49       다음세기
+--50~99       50~99       현재세기
+--------------------------------------------------------------------
+--EX) 
+----------------------------------------------------------------------
+--현재년도    입력년도      RR      YY
+----------------------------------------------------------------------
+--1994        95        1995    1995
+--1999        04        2004    1904 
+--2018        17        2017    2017 
+--2048        52        1952    2052
+--2051        47        2147    2047
+----------------------------------------------------------------------
+
+--앞의 년도가 YY와 RR에 따라 두자리로 계산하면 달라짐
+-- YY는 무조건 현세기 
+--  그니까 RR은 현재 21년을 중심으로   -50년 +50년 해서 입력 년도가 +50에 가까우면 20을 붙여버리고 그게 아니면 이전 세기로 돌려버리네
+-- YY는 그냥 현재 2021의 앞의 천년대를 그대로 받는다. 
+
+
+--그래서 이런 문제를 없애려고
+SELECT EMP_NAME, TO_NUMBER(EXTRACT (YEAR FROM SYSDATE) ) - ( TO_NUMBER(SUBSTR(EMP_NO,1,2)) + CASE WHEN SUBSTR(EMP_NO,8,1)  IN('1','2') THEN 1900 ELSE 2000 END ) AS "나이"
+FROM EMPLOYEE;
+
+
+
+
+
+
+
+

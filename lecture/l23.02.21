@@ -1,0 +1,813 @@
+INSERT INTO KH.EMPLOYEE 
+VALUES ('250','고두밋','470808-2123341','GO_DM@KH.OR.KR',NULL,'D2','J2','S5',4480000,NULL,NULL,TO_DATE('94/01/20','RR/MM/DD'),NULL,'N');
+COMMIT;
+
+-- 그룹함수 넘어가기 전에
+--SELECT 문에서 순서를 정렬
+
+
+-- ORDER BY  -- 얘의 기준은 
+
+-- SELECT 컬럼 .. > COLUMN 필터링
+-- FROM 테이블
+-- [WHERE 비교연산, 논리연산 ]  > ROW필터링
+-- [ORDER BY 컬럼명 ,..] > 특정 컬럼을 기준으로 순서 정렬하는 것 (오른차순, 내림차순)   >> 서버가 아닌 DB에서 SORT를 해서 가져갈텐데 이게 그거야 ㅋㅋ
+
+
+-- ORDER BY 구문은 ASC(오름차순) / DESC(내림차순)  > 숫자/문자(대문자 > 소문자), (가 > 하)/날짜(빠른순)/  NULL(
+-- ASC : 숫자 (작은 -> 큰 / A -> Z/ 가-> 하/ 날짜 빠른순/ NULL은 맨 아래 > 
+-- DESC : ASC 역순
+
+SELECT EMP_NAME, SALARY, BONUS, HIRE_DATE
+FROM EMPLOYEE
+-- CASE 1 : ORDER BY EMP_NAME ASC;
+-- CASE 2 : ORDER BY SALARY DESC;
+-- CASE 3 : ORDER BY BONUS ;
+-- CASE 4 : ORDER BY  BONUS DESC;
+
+-- DEFAULT가 ASC 이다. / NULL은 오름차순일 떄 맨 아래, 내림차순일 때 맨 위로 온다.
+
+-- CASE 5  : ORDER BY HIRE_DATE DESC;
+
+--***ORDER BY는 여러 개 쓸 수 있다.
+--CASE 6  : ORDER BY SALARY DESC, EMP_NAME ASC;
+--하이유	2200000	 0.1	94/07/07
+--윤은해	2000000	 NULL	01/02/03
+--전형돈	2000000	 NULL	12/12/12
+
+
+ORDER BY 1;
+--우리가 SELECT했을 때 컬럼 적잖아 그러면 NAME부터 1 SALARY 2 ...이렇게 인덱스를 부여해서 위에서 처럼 ORDER BY 1; 이렇게 써도 
+-- 문제 없이 작동한다.
+
+
+
+
+
+SELECT EMP_NAME, DECODE(SUBSTR(EMP_NO,8,1),'1', '남', '2', '여')
+FROM EMPLOYEE
+ORDER BY 2; -- 이게 아니었으면 'ORDER BY DECODE(SUBSTR(EMP_NO,8,1),'1', '남', '2', '여');' 이렇게 되니까..
+--주의할 점은 무조건 오라클인덱스는 1부터 시작
+
+
+--ORDER BY에서 별칭이 사용 가능할까?
+SELECT EMP_NAME AS 사원
+FROM EMPLOYEE
+WHERE 사원 LIKE '%김%';
+--왜 안될까??? SELECT에서 AS 사원을 읽기 전에  WHERE, FROM을 먼저 실행해서 할 수 없다. 
+
+
+SELECT EMP_NAME AS 사원
+FROM EMPLOYEE
+WHERE EMP_NAME LIKE '%김%'
+ORDER BY 사원;
+
+-- 근데 얘는 가능하지?? > 
+
+--SELECT문 실행 순서
+--FROM으로 테이블을 가져오고 WHERE으로 조건을 추린다. 그 다음에 SELECT로 컬럼을 고르고 마지막으로 ORDER BY를 실행해 정렬한다.
+
+-- 그렇기 때문에 ORDER BY에 별칭으로 넣는 것이 가능하다. 
+
+
+
+
+
+--정확히는 분석 함수이다. 
+
+
+
+
+
+
+
+-- 그룹 함수 <-> 단일행 함수
+-- 결론적으로 RESULTSET이 한 행만 나오는 함수 : 집계 함수( 합계/ 평균/ 총 개수/ 최대값/ 최소값)
+-- 전체를 집계해서 딱 하나만 출력한다.
+
+
+--SUM : 컬럼의 총 합 (NUMBER형에만 해당됨)
+--월급의 총 합을 구하시고
+
+-- 
+SELECT SALARY 
+FROM EMPLOYEE;
+-- 
+SELECT SUM (SALARY)
+FROM EMPLOYEE;
+--
+--변형해보면
+SELECT SUM(SALARY)
+FROM EMPLOYEE
+WHERE DEPT_CODE='D6';
+--이렇게 하면 특정 부서사람들만 간추려서 합계를 낼 수 있다.
+
+--
+
+SELECT EMP_NAME, SUM(SALARY)
+FROM EMPLOYEE;
+
+--ORA-00937: NOT A SINGLE-GROUP GROUP FUNCTION
+--00937. 00000 -  "NOT A SINGLE-GROUP GROUP FUNCTION"
+--*CAUSE:    
+--*ACTION:
+--ERROR AT LINE: 102 COLUMN: 8
+
+-- 각 ROW에 매칭되는 애가 아니니까 SUM(SALARY)가
+--나중에는 그룹으로 묶은 컬럼들이랑 같이 쓸 수 있다.
+
+
+--AVG :평균
+SELECT TO_CHAR( FLOOR( AVG(SALARY) ), 'L999,999,999,999,999')
+FROM EMPLOYEE
+WHERE DEPT_CODE = 'D5';
+
+
+--COUNT : ROW의 개수를 알려주는 함수 (데이터의 개수를 알려주는)
+-- LIST의 SIZE와 유사
+SELECT COUNT(*)
+FROM EMPLOYEE;
+
+--사원준 직책이 J6인 사원의 수는
+
+SELECT COUNT(*)
+FROM EMPLOYEE
+WHERE JOB_CODE ='J6';
+
+-- COUNT를 할 때 무조건 *을 쓰냐? 그건 또 아니란거지
+
+SELECT COUNT(EMP_NAME)
+FROM EMPLOYEE;
+--컬럼명 쓰는거랑 *랑 차이가 없내요?  응 BONUS쓰면 NULL이 있으니까 그건 COUNT 안 해요!!! 
+-- >COUNT는 컬럼의 NULL값은 제외하고 숫자를 센다.
+
+
+SELECT COUNT (*), COUNT(BONUS), SUM(SALARY), AVG(SALARY)
+FROM EMPLOYEE; 
+
+--집계 함수는 다 하나의 ROW니까 얘네끼리 여러 개 쓰는 건 전혀 상관이 없다.
+--웹에서 페이징처리 할 때 COUNT를 사용한다.
+
+
+
+--MAX/MIN
+SELECT MAX(SALARY), MIN(SALARY)
+FROM EMPLOYEE
+WHERE NOT JOB_CODE = 'J1';
+--그룹 함수의 기본적인 것은 여기까지!
+
+
+--부서가 D5,D6,D7중 월급이 가장 많은 사람
+
+SELECT MAX(SALARY)
+FROM EMPLOYEE
+WHERE DEPT_CODE IN('D5','D6','D7');
+
+
+
+-- GROUP BY & HAVING
+-- GROUP BY는 집계합수 관련한 것이다.
+--지금까지 한 개의 값만 산출했는데 그룹이 여러 개일 때 묶어서
+
+
+
+-- 부서별 가장 높은 급여는
+
+  --여기서 NULL도 하나의 부서로 보고 있네
+SELECT DEPT_CODE, MAX(SALARY)  
+FROM EMPLOYEE
+-- WHERE DEPT_CODE IS NOT NULL  --NULL을 제거
+GROUP BY DEPT_CODE;
+
+
+
+-- 부서별 급여 평균
+
+--여기에 EMP_NAME가능할까? > 아니지! 왜냐면 DEPT_CODE로 묶은건데 그 안에 있는 걸 어떻게 또 펼쳐!! 접으면서 펼칠 수 있어?
+SELECT DEPT_CODE, TRUNC(AVG(SALARY),1)
+FROM EMPLOYEE
+GROUP BY DEPT_CODE;
+
+-- 직책별 합계
+SELECT JOB_CODE, SUM(SALARY)
+FROM EMPLOYEE
+GROUP BY JOB_CODE
+ORDER BY 1;
+
+--직책별 인원 수 구하기
+SELECT JOB_CODE AS "직책 코드", COUNT(*) AS "인원 수", SUM (SALARY)AS "월급 총 합", TRUNC(AVG(SALARY),1) AS "월급 평균"
+FROM EMPLOYEE
+GROUP BY JOB_CODE;
+
+--부서별 보너스를 받는 사원의 수
+
+SELECT DEPT_CODE, COUNT(*)
+FROM EMPLOYEE
+WHERE (BONUS IS NOT NULL) AND (DEPT_CODE IS NOT NULL)
+GROUP BY DEPT_CODE;
+
+--혹은
+
+SELECT DEPT_CODE, COUNT(BONUS)
+FROM EMPLOYEE
+GROUP BY DEPT_CODE;
+
+
+--GROUP BY 절에는 한 개 이상의 컬럼을 사용할 수 있다.
+-- 즉, 여러 개로 그룹핑을 할 수 있다는 것이다.
+SELECT DEPT_CODE, JOB_CODE, COUNT(*)
+FROM EMPLOYEE
+GROUP BY DEPT_CODE, JOB_CODE
+ORDER BY 1,2;
+
+--두 개의 컬럼을 하나로 묶어내서 본다구...
+--D1	J6	2
+--D1	J7	1
+
+--DISTINCT랑 비슷하네 원리가 
+
+-- 부서별 성별/ 인원수를 계산
+
+SELECT DEPT_CODE AS "부서코드",DECODE( SUBSTR(EMP_NO,8,1) ,'1','남', '2', '여')AS "남/녀",  COUNT(*)AS"인원 수 "
+FROM EMPLOYEE
+GROUP BY DEPT_CODE, DECODE( SUBSTR(EMP_NO,8,1) ,'1','남', '2', '여')
+ORDER BY 1,2;
+
+
+-------------------------------------------
+-- 부서별 급여 평균이 300 0000 이상인 부서들에 대해서 부서명, 부서 평균을 출력
+SELECT DEPT_CODE, TRUNC ( AVG(SALARY) ,1 )
+FROM EMPLOYEE
+--WHEN FLOOR ( AVG (SALARY)) >= 30000000 --이 안에 단일 행 함수는 들어갔잖아요?
+GROUP BY DEPT_CODE
+HAVING FLOOR(AVG(SALARY)) >= 3000000;
+
+
+--GROUP BY 함수의 경우에는 조건을 붙일 때 HAVING이라는 절을 이용한다.
+-- HAVING의 위치는 GROUP BY 뒤
+
+
+--부서별 사원 수가 3 명 이상인 부서 출력하기
+
+SELECT DEPT_CODE, COUNT (*)
+FROM EMPLOYEE
+GROUP BY DEPT_CODE
+HAVING  COUNT(*) >3;
+
+
+--매니저가 관리하는 사원이 2명 이상인 매니져 아이디와 관리하는 사원수
+
+SELECT MANAGER_ID, COUNT(*)
+FROM EMPLOYEE
+GROUP BY MANAGER_ID
+HAVING COUNT(*) >=2;
+
+
+-- 합계(SUM), ROW하고 같이 나오는 합계??
+-- GROUP별 합계가 나오고, 총 합계도 같이 나오는
+-- ROLLUP, CUBE
+
+-- 부서별 인원, 총 인원
+SELECT DEPT_CODE, COUNT(*)
+FROM EMPLOYEE
+WHERE DEPT_CODE IS NOT NULL
+GROUP BY DEPT_CODE
+ORDER BY 1;
+
+--D1	3
+--D2	4
+--D5	6
+--D6	3
+--D8	3
+--D9	3
+
+SELECT DEPT_CODE, COUNT(*)
+FROM EMPLOYEE
+WHERE DEPT_CODE IS NOT NULL
+GROUP BY ROLLUP(DEPT_CODE)
+ORDER BY 1;
+
+
+--D1	3
+--D2	4
+--D5	6
+--D6	3
+--D8	3
+--D9	3
+--TOTAL	22
+
+SELECT DEPT_CODE, COUNT(*)
+FROM EMPLOYEE
+WHERE DEPT_CODE IS NOT NULL
+GROUP BY CUBE(DEPT_CODE);
+
+--NULL	22
+--D1	3
+--D2	4
+--D5	6
+--D6	3
+--D8	3
+--D9	3
+
+--둘이 별 차이 없어 보이지?
+
+SELECT DEPT_CODE, SUM(SALARY) 
+FROM EMPLOYEE
+WHERE DEPT_CODE IS NOT NULL
+GROUP BY ROLLUP (DEPT_CODE);
+
+--D1	7820000
+--D2	11000000
+--D5	15760000
+--D6	10100000
+--D8	6986240
+--D9	17700000
+--NULL	69366240
+
+
+--ROLLUP과 CUBE는 다른 결과를 반환하게 됨 > 2개 이상의 컴럼을 GROUP BY했을 때
+--ROLLUP : 두 개의 컬럼 중 왼쪽에 선언된 컬럼을 기준으로 합계 총계를 구하고
+-- CUBE : 두 개의 컬럼 모두를 기준으로 그룹함수를 게산하고 합계 총계를 구함
+
+
+SELECT DEPT_CODE, JOB_CODE, COUNT(*)
+FROM EMPLOYEE
+WHERE DEPT_CODE IS NOT NULL
+--GROUP BY ROLLUP(DEPT_CODE, JOB_CODE)
+GROUP BY ROLLUP( JOB_CODE, DEPT_CODE)
+--ORDER BY 1,2;
+order by 2,1;
+-- ROLL UP
+--D1	J6	2
+--D1	J7	1
+--D1	NULL	3
+--D2	J2	1
+--D2	J4	3
+--D2	NULL	4
+--D5	J3	1
+--D5	J5	3
+--D5	J7	2
+--D5	NULL	6
+--D6	J3	2
+--D6	J4	1
+--D6	NULL	3
+--D8	J6	3
+--D8	NULL	3
+--D9	J1	1
+--D9	J2	2
+--D9	NULL	3
+--NULL	NULL	22
+-- > ROLLUP의 첫 번째 레퍼런스를 기준으로 정렬함
+--
+
+
+SELECT DEPT_CODE, JOB_CODE, COUNT(*)
+FROM EMPLOYEE
+WHERE DEPT_CODE IS NOT NULL
+GROUP BY ROLLUP(DEPT_CODE, JOB_CODE)
+ORDER BY 1,2
+
+UNION
+
+SELECT DEPT_CODE, JOB_CODE, COUNT(*)
+FROM EMPLOYEE
+WHERE DEPT_CODE IS NOT NULL
+GROUP BY ROLLUP( JOB_CODE, DEPT_CODE)
+order by 2,1;
+
+
+--=
+
+
+SELECT DEPT_CODE, JOB_CODE, COUNT(*)
+FROM EMPLOYEE
+WHERE DEPT_CODE IS NOT NULL
+GROUP BY CUBE(DEPT_CODE, JOB_CODE)
+ORDER BY 1,2;
+
+--D1	J6	2
+--D1	J7	1
+--D1	NULL	3
+
+--D2	J2	1
+--D2	J4	3
+--D2	NULL	4
+
+--D5	J3	1
+--D5	J5	3
+--D5	J7	2
+--D5	NULL	6
+
+--D6	J3	2
+--D6	J4	1
+--D6	NULL	3
+
+--D8	J6	3
+--D8	NULL	3
+
+--D9	J1	1
+--D9	J2	2
+
+--D9	NULL	3
+--ROLLUP
+
+--NULL	J1	1
+--NULL	J2	3
+--NULL	J3	3
+--NULL	J4	4
+--NULL	J5	3
+--NULL	J6	5
+--NULL	J7	3
+--CUBE
+
+--NULL	NULL	22
+
+
+--GROUP BY ROLLUP(DEPT_CODE, JOB_CODE)
+--GROUP BY ROLLUP( JOB_CODE, DEPT_CODE)
+--얘네를 두 개 합쳐놨다고
+
+
+-- GROUPING
+-- GROUPBY에 의해서 산출된 ROW인 경우에는 0을 반환,
+--ROLLUP, CUBE를 이용해서 산출된 ROW는 1을 반환
+
+SELECT DEPT_CODE,GROUPING (DEPT_CODE),  JOB_CODE,  GROUPING(JOB_CODE), COUNT(*)
+FROM EMPLOYEE
+WHERE DEPT_CODE IS NOT NULL
+--GROUP BY DEPT_CODE;
+ GROUP BY ROLLUP(DEPT_CODE, JOB_CODE);
+ 
+ SELECT DEPT_CODE, GROUPING (DEPT_CODE), JOB_CODE, GROUPING(JOB_CODE), COUNT(*)
+FROM EMPLOYEE
+WHERE DEPT_CODE IS NOT NULL
+--GROUP BY DEPT_CODE;
+ GROUP BY CUBE(DEPT_CODE, JOB_CODE)
+ ORDER BY 1,3;
+ 
+ SELECT DEPT_CODE, JOB_CODE,
+        CASE
+                WHEN  GROUPING(DEPT_CODE) =0 AND GROUPING(JOB_CODE) = 1 THEN '부서별 합계'
+                WHEN  GROUPING(DEPT_CODE) =1 AND GROUPING(JOB_CODE) = 0 THEN '직책별 합계'
+                WHEN  GROUPING(DEPT_CODE) =1 AND GROUPING (JOB_CODE) = 1 THEN '총 합'
+                ELSE '그룹 합계'
+            END AS "구분", 
+            --SUM(SALARY)
+            COUNT(*)
+FROM EMPLOYEE
+WHERE DEPT_CODE IS NOT NULL
+GROUP BY CUBE (DEPT_CODE, JOB_CODE)
+ORDER BY 1,2,3,4;
+            
+
+
+--집합 연산자 
+--SELECT 는 RESULTSET나오는..
+-- 집합연산자는 RESULT SET을 합친다...
+--UNION 여러 개의 쿼리 결과를 합친다.
+--물론 조건이 있는데, SELECT문에 쓴 컬럼의 개수는 서로 같아야한다./ 컬럼 간의 형식(TYPE)이 같아야한다.  // 데이터의 속성이 같아야하는 것은 아니다.
+-- 데이터 일치성은 상관 없고 개수와 타입이 같기만 하면 장땡
+
+
+----------------------
+-
+--집합 연산자 : 여러 개의 SELECT문을 합치거나 중복값을 제거하거나 하는 연산을 한다.
+-- 조건 : 집합 연산자를 사용할 때는 첫번째 SELECT문의 컬럼의 갯수와 동일해야하고 컬럼의 타입도 같아야한다. (기준은 먼저 선언한 것)
+
+--UNION : 여러 개의 SELECT문을 합치는 것 단 중복 값은 한 개만 포함
+SELECT EMP_ID, EMP_NAME, DEPT_CODE, SALARY
+FROM EMPLOYEE
+WHERE DEPT_CODE = 'D5'
+
+UNION
+
+SELECT DEPT_ID, DEPT_TITLE, LOCATION_ID, 0
+FROM DEPARTMENT
+
+UNION
+
+SELECT JOB_CODE, JOB_NAME, NULL, 0
+FROM JOB;
+
+-- 다른 테이블의 유사한 값을 한 번에 출력하고 싶을 때 UNION 사용
+
+
+
+DESC DEPARTMENT; -- DESCRIBE로 테이블 확인
+-- 컬럼 수가 안 맞으면
+--ORA-01789: QUERY BLOCK HAS INCORRECT NUMBER OF RESULT COLUMNS
+--01789. 00000 -  "QUERY BLOCK HAS INCORRECT NUMBER OF RESULT COLUMNS"
+--*CAUSE:    
+--*ACTION:
+
+
+
+-- UNION 은 중복값을 한 개만 표현
+--1
+SELECT EMP_ID, EMP_NAME, DEPT_CODE, SALARY
+FROM EMPLOYEE
+WHERE DEPT_CODE = 'D5'
+
+UNION 
+--2
+SELECT EMP_ID, EMP_NAME, DEPT_CODE, SALARY
+FROM EMPLOYEE
+WHERE SALARY> 3000000;
+
+--1 과 2에 중복된 값이 있으면 하나만 출력함 
+
+--1
+SELECT EMP_ID, EMP_NAME, DEPT_CODE, SALARY
+FROM EMPLOYEE
+WHERE DEPT_CODE = 'D5'
+
+UNION ALL
+--2
+SELECT EMP_ID, EMP_NAME, DEPT_CODE, SALARY
+FROM EMPLOYEE
+WHERE SALARY> 3000000;
+
+
+--UNION ALL이면 중복 값을 제외하지 않고 그냥 표현
+
+
+
+
+
+--1
+SELECT EMP_ID, EMP_NAME, DEPT_CODE, SALARY
+FROM EMPLOYEE
+WHERE DEPT_CODE = 'D5'
+
+UNION ALL
+--2
+SELECT EMP_ID, EMP_NAME, DEPT_CODE, SALARY
+FROM EMPLOYEE
+WHERE SALARY> 3000000
+
+
+UNION
+
+SELECT EMP_ID, EMP_NAME, DEPT_CODE, SALARY
+FROM EMPLOYEE
+WHERE JOB_CODE = 'J6';
+
+
+
+-- INTERSECT : 교집합 > 중복되는 값
+SELECT EMP_ID, EMP_NAME, DEPT_CODE, SALARY
+FROM EMPLOYEE
+WHERE DEPT_CODE ='D5'
+
+INTERSECT
+
+SELECT EMP_ID, EMP_NAME, DEPT_CODE, SALARY
+FROM EMPLOYEE
+WHERE SALARY > 3000000;
+
+
+
+-- 이렇게도 쓸 수 있다구요
+
+--1
+SELECT EMP_ID, EMP_NAME, DEPT_CODE, SALARY
+FROM EMPLOYEE
+WHERE DEPT_CODE = 'D5'
+
+UNION ALL
+--2
+SELECT EMP_ID, EMP_NAME, DEPT_CODE, SALARY
+FROM EMPLOYEE
+WHERE SALARY> 3000000
+
+
+UNION
+
+SELECT EMP_ID, EMP_NAME, DEPT_CODE, SALARY
+FROM EMPLOYEE
+WHERE JOB_CODE = 'J6'
+
+ INTERSECT 
+ 
+ SELECT EMP_ID, EMP_NAME, DEPT_CODE, SALARY
+ FROM EMPLOYEE
+ WHERE MANAGER_ID IS NOT NULL;
+ 
+ 
+ --MINUS 중복값을 제외한 나머지 (역원??) <->INTERSECT
+ 
+ 
+ --1
+SELECT EMP_ID, EMP_NAME, DEPT_CODE, SALARY
+FROM EMPLOYEE
+WHERE DEPT_CODE = 'D5'
+
+MINUS
+--2
+SELECT EMP_ID, EMP_NAME, DEPT_CODE, SALARY
+FROM EMPLOYEE
+WHERE SALARY> 3000000;
+
+
+--중복 값을 제거한 녀석
+
+-------------------------------------------여기까지 집합 연산자 -----------------------------------------
+
+
+
+--GROUPING SET
+SELECT DEPT_CODE, JOB_CODE, MANAGER_ID, FLOOR(AVG(SALARY))
+FROM EMPLOYEE
+GROUP BY GROUPING SETS((DEPT_CODE, JOB_CODE, MANAGER_ID), 
+                                    (DEPT_CODE, MANAGER_ID),
+                                    (JOB_CODE, MANAGER_ID));
+
+-- 얘는 뭘합친거냐면 ㅋ
+
+SELECT DEPT_CODE, JOB_CODE, MANAGER_ID, FLOOR(AVG(SALARY))
+FROM EMPLOYEE
+GROUP BY DEPT_CODE, JOB_CODE, MANAGER_ID;
+
+--                                 +
+
+SELECT DEPT_CODE, JOB_CODE, MANAGER_ID, FLOOR(AVG(SALARY))
+FROM EMPLOYEE
+GROUP BY DEPT_CODE, MANAGER_ID;
+
+--                                 +
+
+SELECT DEPT_CODE, JOB_CODE, MANAGER_ID, FLOOR(AVG(SALARY))
+FROM EMPLOYEE
+GROUP BY JOB_CODE, MANAGER_ID;
+
+
+--의 결과이다. 
+-----------------------------------------------------------------------------------------------진짜 집합 연산 끝!
+
+
+--************* JOIN
+--DDL은 아니고 그냥 RESULTSET에 보이는 테이블을 붙여주는거
+
+--우리는 지금 관계형 DB를 사용 중이잖아?? 예를 들어서 
+
+--                                      학생 관리 DB
+--학생 테이블/ 학생의 과에 대한 테이블/ 학생 가족에 대한 테이블
+-- 이 테이블들 간의 관계가 있다. 이 테이블들을 왔다갔다하면 비효율이지
+-- (우리는 FROM에서 하나씩 바꿔서 썼잖아?)
+
+
+--테이블을 명시하는 곳이 FROM 이니까 거기에서 , 로 합쳐버린다. 
+-- ORALCE  :: WHERE절에 합치기에 사용할 컴럼명을 준다 (연결할 값 = 연결할 값)
+-- ANSI  :: JOIN 테이블 ON (연결할 값 = 연결할 값)
+
+--ORALCE
+SELECT  EMP_NAME, DEPT_TITLE
+FROM EMPLOYEE, DEPARTMENT
+WHERE DEPT_CODE= DEPT_ID;
+
+--ANSI
+SELECT EMP_NAME, DEPT_TITLE
+FROM EMPLOYEE JOIN DEPARTMENT ON DEPT_CODE=DEPT_ID; -- 얘가 INNER JOIN > DEPT_CODE가 NULL인애들...2명이 빠졌지..
+-- 이걸 쓰는게 낫지 ㅋ
+
+--JOIN 두 가지 종류
+--1.EQU JOIN : 테이블 연결 할 때 동등 비교로 연결하는 것
+--2. NON_EQU JOIN : 테이블 연결 할 때 대소/범위/NULL값으로 비교로 연결하는 것 ( 얘는 따로 범위 지정하는 테이블이 있어야한다.)
+
+
+SELECT COUNT(*)
+FROM EMPLOYEE;
+--1 EQU JOIN :테이블을 연결할 떄 동등 비교로 연결
+-- 1-1 :INNER JOIN  : 기준이 되는 컬럼에 NULL값이 있는 ROW생략하고 연결한다. 
+
+
+SELECT EMP_NAME, DEPT_TITLE
+FROM EMPLOYEE JOIN DEPARTMENT ON DEPT_CODE=DEPT_ID; 
+-- 얘가 INNER JOIN > DEPT_CODE가 NULL인애들...2명이 빠졌지..
+
+
+
+-- 1-2 : OUTTERJOIN : 기준이 되는 테이블은 모두 출력하고 매칭되는 값이 없으면 컬럼에 NULL을 출력
+
+
+--FROM (왼쪽 테이블) JOIN (오른쪽 테이블) ON DEPT_CODE=DEPT_ID;
+           
+            -- 1-2-1 LEFT OUTER JOIN : 왼쪽에 있는 애는 다 나오고 그에 맞춰서 오른쪽 출력
+         
+
+
+SELECT EMP_NAME, DEPT_TITLE
+FROM EMPLOYEE LEFT OUTER JOIN DEPARTMENT ON DEPT_CODE=DEPT_ID;
+
+
+
+
+     -- 1-2-2 RIGHT OUTER JOIN : 오른쪽에 있는 애는 다 나오고 그에 맞춰 왼쪽 출력
+     
+     
+SELECT EMP_NAME, DEPT_TITLE
+FROM EMPLOYEE RIGHT OUTER JOIN DEPARTMENT ON DEPT_CODE=DEPT_ID;
+
+
+--NULL	해외영업3부
+--NULL	마케팅부
+--NULL	국내영업부
+-- 이렇게
+
+
+SELECT *
+FROM EMPLOYEE JOIN DEPARTMENT ON DEPT_CODE = DEPT_ID;
+
+--이러면 두 테이블에 있는 컬럼들을 다 이용할 수 있다.
+--예를 들면
+SELECT EMP_NAME, DEPT_TITLE
+FROM EMPLOYEE RIGHT OUTER JOIN DEPARTMENT ON DEPT_CODE=DEPT_ID
+WHERE DEPT_TITLE = '총무부';
+--SELECT에 *을 썼으면 컬럼명을 쓸 수 없고 컬럼명을 쓰면 *을 쓸 수 없다. 
+
+
+SELECT EMP_NAME, DEPT_TITLE , E.*
+FROM EMPLOYEE E RIGHT OUTER JOIN DEPARTMENT D ON DEPT_CODE=DEPT_ID;
+
+--테이블에 별칭을 쓸 수 있는데 그리고 나서 별칭.*으로 해당 테이블만 전체 조회는 가능
+
+--테이블에 별칭 넣는게 언제 필요할까??
+-- EMPLOYEE와 JOB테이블 JOIN
+SELECT *
+--FROM EMPLOYEE E JOIN JOB J ON E.JOB_CODE= J.JOB_CODE;  --A
+-- 두 테이블의 컬럼명이 일치하면 ON 대신 USING이라는 예약어를 사용할 수 있음
+FROM EMPLOYEE JOIN JOB USING(JOB_CODE);   --B
+
+--A는 JOB_CODE가 두 개가 나오고
+--B는 JOB_CODE가 하나만 나온다.
+--저 둘의 차이점이라면??
+
+
+--ORA-00918: COLUMN AMBIGUOUSLY DEFINED
+--00918. 00000 -  "COLUMN AMBIGUOUSLY DEFINED"
+--*CAUSE:    
+--*ACTION:
+--ERROR AT LINE: 713 COLUMN: 41
+
+-- '.'을 사용하는건 유저명이나 테이블을 객체화 해놨어서 ...
+
+SELECT *
+FROM JOB;
+
+--이렇게 매칭시켜야하는 컬럼의 이름이 같을 때 사용
+
+
+
+--다시 OUTERJOIN
+SELECT *
+FROM EMPLOYEE, DEPARTMENT
+WHERE DEPT_CODE = DEPT_ID(+);
+
+--LEFT/RIGHT 어떤 것을 선택할 지 고민해야함...
+
+
+
+
+
+
+
+
+
+--CROSS JOIN : 카티션 곱(CARTESIAN PRODUCT)> 각 ROW전체를 연결하는 것
+SELECT * FROM EMPLOYEE; --24
+SELECT * FROM DEPARTMENT; --9
+
+SELECT EMP_NAME, DEPT_TITLE
+FROM EMPLOYEE CROSS JOIN DEPARTMENT
+ORDER BY 1;
+
+-- 많이 이용하거나 하지는 않지 SUB QUERY를 이용해서 하긴 하는데..
+--테이블 내 컬럼. 어떤 값끼리 연결??
+
+--SELF JOIN : 자기 자신의 테이블을 자신이 참조 (재귀 참조)
+SELECT * FROM EMPLOYEE;
+-- EMP ID, MANAGER ID가 같다. 
+-- 각 사원의 매니저 이름을 조회하세요 사원이름과
+
+SELECT E.EMP_ID, E.EMP_NAME AS "관리자 이름" , M.EMP_ID,  M.EMP_NAME AS "사원 이름", '없음'
+--FROM EMPLOYEE E  JOIN EMPLOYEE M ON( M.MANAGER_ID = E.EMP_ID);
+
+--관리자 없는 사람들
+FROM EMPLOYEE E  LEFT JOIN EMPLOYEE M ON( M.MANAGER_ID = E.EMP_ID);
+
+--outer join
+--FROM EMPLOYEE E  JOIN EMPLOYEE M ON( M.MANAGER_ID = E.EMP_ID(+));
+
+
+
+
+--다중  Join : 두 개 이상의 테이블을 연결하는 것
+
+
+
+--2. NON_EQU JOIN : 테이블 연결 할 때 대소/범위/NULL값으로 비교로 연결하는 것 ( 얘는 따로 범위 지정하는 테이블이 있어야한다.)
+    
+select * 
+from employee;
+
+

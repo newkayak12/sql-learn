@@ -40,4 +40,12 @@ create user test identified by test;
 grant resource, connect to test;
 
 
+
+
+
+
+
+
+
+
  

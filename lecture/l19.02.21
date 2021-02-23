@@ -29,6 +29,10 @@ from employee;
 select length('asv') 
 from employee;
  
+ 
+ 
+ 
+ 
  --** instr
  --찾는 문자열이 지정한 위치부터 지정한 횟수 번째에 나타나는 위치 반환(인덱스 번호)
  --instar(문자열|| 컬럼(target)  , 문자열|| 컬럼( reference)  , 시작위치, 몇 번째에서 찾을 것인가? > 중복값이 있을 때 사용)
@@ -62,7 +66,11 @@ from employee;
  select email, instr(email, '@')
  from employee;
  --물론 얘 혼자 쓰이는건 아님 subString이랑 indexOf랑 같이 쓰인 것처럼 ... 한 번에 할 수 있도록 좀 만들어놔!!
- 
+
+--이렇게는 못 쓰네
+  select email
+  from employee;
+  --where instr(email, '@');
  
  --LPAD/RPAD :할당된 공간에서 빈 공간의 왼/오른쪽을 특정문자로 채우는 기능을 한다.
  --L/RPAD(문자열||컬럼, 공간의 크기, 문자)
@@ -144,13 +152,19 @@ select RTRIM('       병승       ')
  
  --trim : 양쪽, 옵션에 따라서 왼/오른/양쪽 특정 문자를 제거한다. (단, 문자는 오로지 1개)
  -- 생략하면 공백을 날림
+ 
  -- trim(문자열 || 컬럼 -> 공백제거    
+ 
  -- trim(문자열 || 컬럼[, ' 문자열 ']) -> 양쪽에서 문자를 제거 단 1개****
  -- trim( 한개 문자 from 문자열||컬럼) 양쪽에서 문자를 제거
  --trim(leading\\trailing\\both 문자 from 문자열||컬럼)
  
  select trim(both '1' from '11111유병승111111')
  from dual;
+ 
+ select trim(both '1' from '12311유병승312111')
+ from dual;
+--예는 레퍼런스에 하나의 문자만 줘야한다.
 
  select trim(leading '1' from '11111유병승111111')
  from dual; 
@@ -248,6 +262,10 @@ select RTRIM('       병승       ')
  
  -- 여기까지 문자처리 함수
  
+ 
+ 
+ 
+ 
  --abs : 절대값을 처리하는 함수
  select abs(10), abs(-10)
  from dual;
@@ -317,16 +335,17 @@ select RTRIM('       병승       ')
   
   
   
+  
  -- 날짜처리 함수
  --sysdate : 로컬 날짜 출력
  
  select sysdate, current_date, localtimestamp, current_timestamp
  from dual;
  
- select sysdate,to_date(sysdate,'yyyy/mm/dd hh24:mi:ss')
+ select sysdate, to_date(sysdate,'yyyy/mm/dd hh24:mi:ss')
  from dual;
  
- --날짜도 산순연산이 가능+/-
+ --날짜도 산술 연산이 가능+/-
  -- 일자를 계산한다. 
   
   select sysdate-1 as "어제", sysdate as "오늘", sysdate+1 as "내일"
@@ -337,8 +356,8 @@ select RTRIM('       병승       ')
   select sysdate - to_date('01/02/24', 'rr/mm/dd')
   from dual;
   
-  -- add_month: 개월수를 연산해주는 함수 개월 수를 더해주는 함수
-  --add_month( 날짜, 더할 개월)
+  -- add_months: 개월수를 연산해주는 함수 개월 수를 더해주는 함수
+  --add_months ( 날짜, 더할 개월)
   
   select add_months(sysdate, 3)
   from dual;
@@ -352,6 +371,9 @@ select RTRIM('       병승       ')
  
  select add_months(sysdate, 18) as "전역일" , (add_months(sysdate, 18)-sysdate)*3||'끼' as "식사"
  from dual;
+ 
+ select  (to_date('21/07/10', 'rr/mm/dd')) - hire_date, hire_date
+ from employee;
  
  
  -- months_between : 개월 수를 구하는 함수
@@ -375,8 +397,10 @@ select RTRIM('       병승       ')
  
  
  --last_day : 그 달의 마지막 날을 출력
- select last_day(sysdate)
+ select last_day( sysdate )
  from dual;
+ 
+ 
  
  select * 
  from v$nls_parameters;
@@ -387,11 +411,15 @@ select RTRIM('       병승       ')
  -- extract(month from 날짜) : 월을 출력
  -- extract(day from 날짜) : 일을 출력
  
- select extract( year from sysdate)||'/' as "년", extract( month from sysdate)||'/' as "월", extract (day from sysdate) as "일"
+ select extract( year from sysdate)||'/' as "년",
+        extract( month from sysdate)||'/' as "월",
+        extract (day from sysdate) as "일"
  from dual;
  
  --sysdate는 기본적으로 년/월/일을 출려하도록 설계
- select extract(hour from cast (sysdate as timestamp))||'시', extract(minute from cast (sysdate as timestamp))||'분', extract(second from cast (sysdate as timestamp))||'초'
+ select extract( hour from cast (sysdate as timestamp))||'시',
+            extract(minute from cast (sysdate as timestamp))||'분',
+            extract(second from cast (sysdate as timestamp))||'초'
  from dual;
  
 
@@ -414,6 +442,7 @@ where extract(year from hire_date ) between 1990 and 2000;
 --   name char(10),   --김상현 > 9바이트 1바이트는 유휴비트로 버림  : 최대 2000바이트
 --  name2 varchar2(10) --> 1바이트는 알아서 반환 (축소) : 최대 4000바이트
 --);
+
 
 
 --nchar/ nvarchar2 는 유니코드로 처리 (특수 기호 등) 똑같이 2000/4000바이트

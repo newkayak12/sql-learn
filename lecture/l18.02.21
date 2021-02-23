@@ -226,7 +226,7 @@ where salary between 2000000 and 4000000;
 
 select *
 from employee
-where hire_date < '01/feb/01'; -- 일/월/년
+where hire_date  - ( sysdate, 'yyyy/mm/dd'); -- 일/월/년
 
 
 --like : 패턴에 의해서 데이터를 조회하는 기능
