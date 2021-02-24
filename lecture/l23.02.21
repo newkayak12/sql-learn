@@ -138,7 +138,7 @@ WHERE JOB_CODE ='J6';
 
 SELECT COUNT(EMP_NAME)
 FROM EMPLOYEE;
---컬럼명 쓰는거랑 *랑 차이가 없내요?  응 BONUS쓰면 NULL이 있으니까 그건 COUNT 안 해요!!! 
+--컬럼명 쓰는거랑 *랑 차이가 없내요?  음... BONUS쓰면 NULL이 있으니까 그건 COUNT 안 해요!!! 
 -- >COUNT는 컬럼의 NULL값은 제외하고 숫자를 센다.
 
 
@@ -245,6 +245,8 @@ HAVING FLOOR(AVG(SALARY)) >= 3000000;
 
 --GROUP BY 함수의 경우에는 조건을 붙일 때 HAVING이라는 절을 이용한다.
 -- HAVING의 위치는 GROUP BY 뒤
+--where을 안쓰는 건 아니다 그렇지만
+
 
 
 --부서별 사원 수가 3 명 이상인 부서 출력하기
@@ -330,13 +332,13 @@ GROUP BY ROLLUP (DEPT_CODE);
 -- CUBE : 두 개의 컬럼 모두를 기준으로 그룹함수를 게산하고 합계 총계를 구함
 
 
-SELECT DEPT_CODE, JOB_CODE, COUNT(*)
+SELECT JOB_CODE,DEPT_CODE,  COUNT(*)
 FROM EMPLOYEE
 WHERE DEPT_CODE IS NOT NULL
 --GROUP BY ROLLUP(DEPT_CODE, JOB_CODE)
 GROUP BY ROLLUP( JOB_CODE, DEPT_CODE)
 --ORDER BY 1,2;
-order by 2,1;
+order by 1,2;
 -- ROLL UP
 --D1	J6	2
 --D1	J7	1
@@ -360,7 +362,7 @@ order by 2,1;
 -- > ROLLUP의 첫 번째 레퍼런스를 기준으로 정렬함
 --
 
-
+-------------------------------------------------------------------------????????????????????????
 SELECT DEPT_CODE, JOB_CODE, COUNT(*)
 FROM EMPLOYEE
 WHERE DEPT_CODE IS NOT NULL
@@ -376,7 +378,7 @@ GROUP BY ROLLUP( JOB_CODE, DEPT_CODE)
 order by 2,1;
 
 
---=
+-------------------------------------------------------------------------?????????????????????????????????????
 
 
 SELECT DEPT_CODE, JOB_CODE, COUNT(*)
@@ -411,18 +413,18 @@ ORDER BY 1,2;
 --D9	NULL	3
 --ROLLUP
 
---NULL	J1	1
---NULL	J2	3
---NULL	J3	3
---NULL	J4	4
---NULL	J5	3
---NULL	J6	5
---NULL	J7	3
+--NULL	     J1	1
+--NULL 	J2	3
+--NULL	    J3	3
+--NULL	    J4	4
+--NULL	    J5	3
+--NULL	    J6	5
+--NULL	    J7	3
 --CUBE
 
---NULL	NULL	22
+--NULL   	NULL	22
 
-
+------------------------ >큐브 다시 정리 (다각으로 접합 계산해서 cube > )
 --GROUP BY ROLLUP(DEPT_CODE, JOB_CODE)
 --GROUP BY ROLLUP( JOB_CODE, DEPT_CODE)
 --얘네를 두 개 합쳐놨다고
@@ -806,6 +808,8 @@ FROM EMPLOYEE E  LEFT JOIN EMPLOYEE M ON( M.MANAGER_ID = E.EMP_ID);
 
 
 --2. NON_EQU JOIN : 테이블 연결 할 때 대소/범위/NULL값으로 비교로 연결하는 것 ( 얘는 따로 범위 지정하는 테이블이 있어야한다.)
+    -- 동등비교가 아니라 위와 같은 느낌으로
+    
     
 select * 
 from employee;

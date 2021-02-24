@@ -1,0 +1,24 @@
+--JOIN은 기술 면접 때 질문하기도 한다(집한연산자도)
+
+
+-- 다중 JOIN : 두 개 이상의 테이블을 연결하는 것
+
+
+
+--사원의 부서명과 직책명을 조회하는 sql문을 작성하자
+select emp_name, dept_title, job_name
+from employee
+                        join department on dep_code=dept_Id
+                        join job using (job_code);
+                        
+                        
+                        
+
+
+
+
+
+
+
+-- NON-EQUI JOIN 
+
