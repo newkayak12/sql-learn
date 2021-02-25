@@ -61,6 +61,12 @@ FROM EMPLOYEE JOIN SAL_GRADE ON SALARY BETWEEN MIN_SAL AND MAX_SAL;
 -- 여기까지가 JOIN문.... 대부분 사용하는게 EQUAL - JOIN 이긴 한데
 
 
+
+
+
+
+-------------------------------------
+
 --SUBQUERY (보조 쿼리)
 SELECT *
 FROM EMPLOYEE
@@ -470,6 +476,8 @@ from
                 from employee
                 where decode( substr( emp_no, 8,1), '1', '남', '2', '여')  = '여'); --이러면 한 개의 테이블화(가상화) > 이러면 우리가 조작한 컬럼을 사용할 수 있음
                 
+                
+                --활용하는 곳 eg > join한 테이
 
 
 
