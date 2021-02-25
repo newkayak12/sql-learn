@@ -1,138 +1,149 @@
---additional select -option
+--ADDITIONAL SELECT -OPTION
 --1
-select  student_name as "학생 이름", student_address as "학생 주소"
-from tb_student
-order by 1;
+SELECT  STUDENT_NAME AS "학생 이름", STUDENT_ADDRESS AS "학생 주소"
+FROM TB_STUDENT
+ORDER BY 1;
 
 --2
-select student_name , student_ssn 
-from tb_student
-order by 2 desc;
+SELECT STUDENT_NAME , STUDENT_SSN 
+FROM TB_STUDENT
+ORDER BY 2 DESC;
 
 --3
-select  student_name, student_no, student_address
-from tb_student
-where substr(student_address, 1,3) in ('경기도', '강원도') and (substr(student_no,1,2) like ('9%'));
+SELECT  STUDENT_NAME, STUDENT_NO, STUDENT_ADDRESS
+FROM TB_STUDENT
+WHERE SUBSTR(STUDENT_ADDRESS, 1,3) IN ('경기도', '강원도') AND (SUBSTR(STUDENT_NO,1,2) LIKE ('9%'));
 
 
 --4
-select professor_name, professor_ssn
-from tb_professor join tb_class using (department_no)
-where department_no = '001'
-order by 1 desc;
+SELECT PROFESSOR_NAME, PROFESSOR_SSN
+FROM TB_PROFESSOR JOIN TB_CLASS USING (DEPARTMENT_NO)
+WHERE DEPARTMENT_NO = '001'
+ORDER BY 1 DESC;
 
-select distinct p.professor_name, p.professor_ssn
+SELECT DISTINCT P.PROFESSOR_NAME, P.PROFESSOR_SSN
 
-from tb_professor p join tb_class_professor using (professor_no)
-                            join tb_class e using (class_no)
+FROM TB_PROFESSOR P JOIN TB_CLASS_PROFESSOR USING (PROFESSOR_NO)
+                            JOIN TB_CLASS E USING (CLASS_NO)
                             
-where e.department_no = '005'
-order by 2 ;
+WHERE E.DEPARTMENT_NO = '005'
+ORDER BY 2 ;
 
 
 
 
-select *
-from tb_department;
+SELECT *
+FROM TB_DEPARTMENT;
 
-select * 
-from tb_class;
+SELECT * 
+FROM TB_CLASS;
 
 
 
 --5
-select student_no , point
-from tb_student join tb_grade using(student_no)
-where class_no = 'C3118100' and term_no ='200402'
-order by 2 desc;
+SELECT STUDENT_NO , POINT
+FROM TB_STUDENT JOIN TB_GRADE USING(STUDENT_NO)
+WHERE CLASS_NO = 'C3118100' AND TERM_NO ='200402'
+ORDER BY 2 DESC;
 
 
-select *
-from tb_grade;
+SELECT *
+FROM TB_GRADE;
 --6
 
-select student_no, student_name, department_name
-from  tb_student join tb_department using(departMent_no)
-order by 2 ;
+SELECT STUDENT_NO, STUDENT_NAME, DEPARTMENT_NAME
+FROM  TB_STUDENT JOIN TB_DEPARTMENT USING(DEPARTMENT_NO)
+ORDER BY 2 ;
 
 --7
- select class_name, department_name
- from  tb_class join tb_department using (department_no);
+ SELECT CLASS_NAME, DEPARTMENT_NAME
+ FROM  TB_CLASS JOIN TB_DEPARTMENT USING (DEPARTMENT_NO);
 
 --8
-select class_name, professor_name
-from tb_professor join tb_class using (department_no)
-order by 2;
+SELECT CLASS_NAME, PROFESSOR_NAME
+FROM TB_PROFESSOR JOIN TB_CLASS USING (DEPARTMENT_NO)
+ORDER BY 2;
 
 --9
-select class_name, professor_name
-from tb_professor join tb_class using (department_no)
-                            join tb_department using( department_no)
-where category = '인문사회'
-order by 2;
+SELECT CLASS_NAME, PROFESSOR_NAME
+FROM TB_PROFESSOR JOIN TB_CLASS USING (DEPARTMENT_NO)
+                            JOIN TB_DEPARTMENT USING( DEPARTMENT_NO)
+WHERE CATEGORY = '인문사회'
+ORDER BY 2;
 
 
 --10
 
-select  student_no, student_name ,  trunc(avg(point),1)
+SELECT  STUDENT_NO, STUDENT_NAME ,  TRUNC(AVG(POINT),1)
 
-from tb_student join tb_grade using (student_no)
-                        join tb_department using(department_no)
+FROM TB_STUDENT JOIN TB_GRADE USING (STUDENT_NO)
+                        JOIN TB_DEPARTMENT USING(DEPARTMENT_NO)
                     
-where department_name = '음악학과'
+WHERE DEPARTMENT_NAME = '음악학과'
 
-group by student_no, student_name;
+GROUP BY STUDENT_NO, STUDENT_NAME;
 
 --11
-select department_name as "학과 이름", student_name as "학생이름" , professor_name as "지도교수 이름"
-from tb_department join tb_student using(department_no)
-                            join  tb_professor using (department_no)
-where   student_no = 'A313047' ;
+SELECT DEPARTMENT_NAME AS "학과 이름", STUDENT_NAME AS "학생이름" , PROFESSOR_NAME AS "지도교수 이름"
+FROM TB_DEPARTMENT JOIN TB_STUDENT USING(DEPARTMENT_NO)
+                            JOIN  TB_PROFESSOR USING (DEPARTMENT_NO)
+WHERE   STUDENT_NO = 'A313047' ;
 
-select *
-from tb_student;
+SELECT *
+FROM TB_STUDENT;
 
 
 --12  ****
+--정답
 select student_name, term_no
-from tb_student join tb_grade using (student_no)
-                        join tb_class using (class_no)
-where class_name = '인간관계론' ;
-
-
-
-
-
-
-select student_name
 from tb_student join tb_grade using(student_no)
-where class_no = 'C2604100';
+                        join tb_class using (class_no)
+
+where   substr(term_no, 1,4) like ('2007%') and class_name = '인간관계론'
+order by 1;
 
 
-select student_name, term_no
-from  tb_student  join tb_grade using(student_no)
-                            join tb_class using (class_no)
-where class_name = '인간관계론' ;
+
+----------------
+SELECT STUDENT_NAME, TERM_NO
+FROM TB_STUDENT JOIN TB_GRADE USING (STUDENT_NO)
+                        JOIN TB_CLASS USING (CLASS_NO)
+WHERE CLASS_NAME = '인간관계론' ;
 
 
-select student_name, term_no
-from tb_student  join (select *
-                                 from tb_grade
-                                where class_no = (select class_no
-                                                            from tb_class
-                                                            where class_name = '인간관계론')) using(student_no)
+
+
+
+
+SELECT STUDENT_NAME
+FROM TB_STUDENT JOIN TB_GRADE USING(STUDENT_NO)
+WHERE CLASS_NO = 'C2604100';
+
+
+SELECT STUDENT_NAME, TERM_NO
+FROM  TB_STUDENT  JOIN TB_GRADE USING(STUDENT_NO)
+                            JOIN TB_CLASS USING (CLASS_NO)
+WHERE CLASS_NAME = '인간관계론' ;
+
+
+SELECT STUDENT_NAME, TERM_NO
+FROM TB_STUDENT  JOIN (SELECT *
+                                 FROM TB_GRADE
+                                WHERE CLASS_NO = (SELECT CLASS_NO
+                                                            FROM TB_CLASS
+                                                            WHERE CLASS_NAME = '인간관계론')) USING(STUDENT_NO)
                                                             
-order by 1   ;
+ORDER BY 1   ;
 
-select *
-from tb_grade
-where class_no = (select class_no
-                            from tb_class
-                            where class_name = '인간관계론');
+SELECT *
+FROM TB_GRADE
+WHERE CLASS_NO = (SELECT CLASS_NO
+                            FROM TB_CLASS
+                            WHERE CLASS_NAME = '인간관계론');
 
-select class_no
-from tb_class
-where class_name = '인간관계론';
+SELECT CLASS_NO
+FROM TB_CLASS
+WHERE CLASS_NAME = '인간관계론';
 
 --13
 
@@ -140,92 +151,135 @@ where class_name = '인간관계론';
 
 
 
-select class_name, department_name
-from tb_class   outer left join tb_class_professor using(class_no)
-                         join tb_department using(department_no)   
- where category = '예체능' and professor_no is null
- order by 1,2;
+SELECT CLASS_NAME, DEPARTMENT_NAME
+FROM TB_CLASS   OUTER LEFT JOIN TB_CLASS_PROFESSOR USING(CLASS_NO)
+                         JOIN TB_DEPARTMENT USING(DEPARTMENT_NO)   
+ WHERE CATEGORY = '예체능' AND PROFESSOR_NO IS NULL
+ ORDER BY 1,2;
 
 
-select *
-from tb_class;
+SELECT *
+FROM TB_CLASS;
 
-select *
-from tb_department;
+SELECT *
+FROM TB_DEPARTMENT;
 
-select *
-from tb_class_professor;
+SELECT *
+FROM TB_CLASS_PROFESSOR;
 
 
 
 --14 
-select  student_name, NVL(professor_name, '지도교수 미지정')
-from tb_student s left outer join tb_professor p on (coach_professor_no = professor_no);
---where  s.coach_professor_no = ;
+SELECT  STUDENT_NAME, NVL(PROFESSOR_NAME, '지도교수 미지정')
+FROM TB_STUDENT S LEFT OUTER JOIN TB_PROFESSOR P ON (COACH_PROFESSOR_NO = PROFESSOR_NO);
+--WHERE  S.COACH_PROFESSOR_NO = ;
 
-select *
-from tb_professor;
+SELECT *
+FROM TB_PROFESSOR;
 
-select *
-from tb_class_professor;
+SELECT *
+FROM TB_CLASS_PROFESSOR;
 
 
-select *
-from tb_student
-where student_name = '남가영';
+SELECT *
+FROM TB_STUDENT
+WHERE STUDENT_NAME = '남가영';
 
 
 --15
-select student_no,  student_name, department_name , trunc((select avg(point) from tb_grade g where e.student_no = g.student_no),1) as "평점"
-from tb_student e join tb_department using( department_no)
-where absence_yn = 'N'  and trunc((select avg(point) from tb_grade g where e.student_no = g.student_no),1) >=4.0
-order by 1;
+SELECT STUDENT_NO,  STUDENT_NAME, DEPARTMENT_NAME , TRUNC((SELECT AVG(POINT) FROM TB_GRADE G WHERE E.STUDENT_NO = G.STUDENT_NO),1) AS "평점"
+FROM TB_STUDENT E JOIN TB_DEPARTMENT USING( DEPARTMENT_NO)
+WHERE ABSENCE_YN = 'N'  AND TRUNC((SELECT AVG(POINT) FROM TB_GRADE G WHERE E.STUDENT_NO = G.STUDENT_NO),1) >=4.0
+ORDER BY 1;
 
 --16
 
-select class_no, class_name, trunc((select avg(point) from tb_grade g where c.class_no = g.class_no),1) as "avg(point)"
-from tb_class c join tb_department using (department_no)
-where department_name = '환경조경학과' and class_type like ('전공%')
-order by 1;
+SELECT CLASS_NO, CLASS_NAME, TRUNC((SELECT AVG(POINT) FROM TB_GRADE G WHERE C.CLASS_NO = G.CLASS_NO),1) AS "AVG(POINT)"
+FROM TB_CLASS C JOIN TB_DEPARTMENT USING (DEPARTMENT_NO)
+WHERE DEPARTMENT_NAME = '환경조경학과' AND CLASS_TYPE LIKE ('전공%')
+ORDER BY 1;
 
 
-select *
-from tb_class;
+SELECT *
+FROM TB_CLASS;
 --17
 
-select student_name, student_address
-from tb_student
-where department_no in (select department_no from tb_student where student_name = '최경희');
+SELECT STUDENT_NAME, STUDENT_ADDRESS
+FROM TB_STUDENT
+WHERE DEPARTMENT_NO IN (SELECT DEPARTMENT_NO FROM TB_STUDENT WHERE STUDENT_NAME = '최경희');
 
 
---18
-select e.student_no, e.student_name
+--18 ***********************************************************
 
-from tb_student e join tb_grade o on (e.student_no= o. student_no)
-                        join tb_department d on(e.department_no = d.department_no)
+
+
+----------------여기?
+
+SELECT STUDENT_NO, STUDENT_NAME
+FROM ( 
+
+            SELECT  STUDENT_NO, STUDENT_NAME, DEPARTMENT_NAME, SUM(POINT)
+            FROM TB_STUDENT JOIN TB_DEPARTMENT USING(DEPARTMENT_NO)
+                                     JOIN TB_GRADE USING (STUDENT_NO)
+            WHERE DEPARTMENT_NAME = '국어국문학과' 
+            GROUP BY STUDENT_NO, STUDENT_NAME, DEPARTMENT_NAME
+            ORDER BY 4 DESC
+            
+        )
+WHERE ROWNUM =1    ;
+
+--------------------------------------- 아래는 뻘짓
+
+
+SELECT E.STUDENT_NO, E.STUDENT_NAME 
+
+FROM TB_STUDENT E JOIN TB_GRADE O ON (E.STUDENT_NO= O. STUDENT_NO)
+                        JOIN TB_DEPARTMENT D ON(E.DEPARTMENT_NO = D.DEPARTMENT_NO)
                         
-where department_name = '국어국문학과'
-group by e.student_no, e.student_name 
-having sum(o.point) > any(select  sum(g.point)
-                                from tb_grade g
-                                where e.student_no = g.student_no );
+WHERE DEPARTMENT_NAME = '국어국문학과' ;
+                      
                                 
                                 
-                                
-select student_no, student_name
-from 
+SELECT STUDENT_NAME, DEPARTMENT_NAME, SUM(POINT)
+FROM TB_STUDENTS JOIN TB_DEPARTMENT D ON (S.DEPARTMENT_NO = D.DEPARTMENT_NO)
+                        JOIN TB_GRADE G ON (S.STUDENT_NO = G.STUDENT_NO)
+WHERE DEPARTMENT_NAME = '국어국문학과'  
+GROUP BY STUDENT_NAME, DEPARTMENT_NAME
+HAVING SUM(POINT) > (SELECT SUM(POINT) FROM TB_GRADE R WHERE G.STUDENT_NO = R.STUDENT_NO);                                                             
+                                                                                                                
+                                                                                                                
+                                                                                                                
+SELECT STUDENT_NAME, DEPARTMENT_NAME, SUM(POINT)
+FROM TB_STUDENT JOIN TB_DEPARTMENT USING(DEPARTMENT_NO)
+                            JOIN TB_GRADE USING (STUDENT_NO)
+WHERE DEPARTMENT_NAME = '국어국문학과' 
+                    
+HAVING    SUM(POINT) >= ANY ( SELECT SUM(POINT) FROM TB_GRADE GROUP BY STUDENT_NO)
+GROUP BY STUDENT_NAME, DEPARTMENT_NAME;
 
 
+SELECT *
+FROM TB_STUDENT
+WHERE STUDENT_NAME = '방민진';
 
-select *
-from tb_student;
+SELECT *
+FROM TB_DEPARTMENT;
 
-select *
-from tb_grade;
 
-select student_no, sum(point)
-from tb_grade
-group by student_no;
+SELECT *
+FROM TB_GRADE;
+
+SELECT STUDENT_NO, SUM(POINT)
+FROM TB_GRADE
+GROUP BY STUDENT_NO;
 
 
 --19
+    SELECT  E. DEPARTMENT_NAME AS "게열 학과명", ROUND(  (SELECT AVG(POINT)
+                                                            FROM TB_GRADE 
+                                                            JOIN TB_STUDENT S USING(STUDENT_NO)
+                                                            WHERE E.DEPARTMENT_NO = S.DEPARTMENT_NO), 1) AS "전공 평점"
+    
+FROM TB_DEPARTMENT E
+WHERE CATEGORY IN (SELECT CATEGORY FROM TB_DEPARTMENT WHERE DEPARTMENT_NAME = '환경조경학과')
+ORDER BY 1;
