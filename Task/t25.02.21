@@ -182,3 +182,34 @@ where   e. salary   > (  select avg(salary)
 select sal_level, emp_name, job_name
 from employee join job using (job_code)
 where sal_level in (select sal_level from employee where emp_name in ('차태연', '전지연'));
+
+
+-- select문 종합
+--1. 
+select emp_name, dept_code, salary
+from employee join department on (dept_code = dept_id)
+where dept_title = '기술지원부';
+
+--2.
+select emp_name, dept_code, salary
+from employee e join department l on (e.dept_code = l.dept_id)
+where dept_title = '기술지원부' 
+                AND
+            salary = (select max(salary) from employee  j where e.dept_code =j.dept_code );
+            
+            
+--3 
+
+--3.1
+select l.emp_id as "사원의 사번", l.emp_name  as "사원" , e.emp_name  as "매니저", l.salary as "사원의 월급"
+from employee e join employee l on (e.emp_id = l.manager_id);
+
+--3.2
+select e1.emp_id, e1.emp_name, (select m.emp_name from employee m where m.emp_id = e1.manager_id) as "매니저 이름", e1.salary
+from employee e1;
+
+
+select *
+from employee;
+            
+
