@@ -224,10 +224,10 @@ ORDER BY 1,2;
 
 
 
---함수 _  Join
+--함수 _  JOIN
 --1
-select emp_name as "이름", email  as "이메일", length(email) as "이메일 길이"
-from employee;
+SELECT EMP_NAME AS "이름", EMAIL  AS "이메일", LENGTH(EMAIL) AS "이메일 길이"
+FROM EMPLOYEE;
 
 
 
@@ -237,92 +237,92 @@ from employee;
 
 --2. 
 
-select emp_name as "직원명" , to_char(to_date(substr(emp_no, 1, 2), 'rr'), 'rrrr') as"년생" , nvl2( bonus , bonus , 0)
-from employee
-where substr(emp_no, 1, 2) between 60 and 69;
+SELECT EMP_NAME AS "직원명" , TO_CHAR(TO_DATE(SUBSTR(EMP_NO, 1, 2), 'RR'), 'RRRR') AS"년생" , NVL2( BONUS , BONUS , 0)
+FROM EMPLOYEE
+WHERE SUBSTR(EMP_NO, 1, 2) BETWEEN 60 AND 69;
 
 
 --3
-select count(*)||'명'
-from employee
-where phone not like ('010%') or phone is null;
+SELECT COUNT(*)||'명'
+FROM EMPLOYEE
+WHERE PHONE NOT LIKE ('010%') OR PHONE IS NULL;
 
---null/ 010아닌사람 3사람씩 6명
-select phone
-from employee;
+--NULL/ 010아닌사람 3사람씩 6명
+SELECT PHONE
+FROM EMPLOYEE;
 
 
 --4 
-select emp_name as "직원명", extract(year from hire_date)||'년 '||extract(month from hire_date)||'월' as "입사 년/월"
-from employee;
+SELECT EMP_NAME AS "직원명", EXTRACT(YEAR FROM HIRE_DATE)||'년 '||EXTRACT(MONTH FROM HIRE_DATE)||'월' AS "입사 년/월"
+FROM EMPLOYEE;
 
 --5
-select emp_name, Rpad(substr(emp_no, 1,8),14,'*')
-from employee;
+SELECT EMP_NAME, RPAD(SUBSTR(EMP_NO, 1,8),14,'*')
+FROM EMPLOYEE;
 
 --6 
-select emp_name, job_code,   Nvl(to_char((salary*(1+bonus)*12), '999,999,999,999'), to_char(salary*12,'999,999,999') )as "연봉"
-from employee;
+SELECT EMP_NAME, JOB_CODE,   NVL(TO_CHAR((SALARY*(1+BONUS)*12), '999,999,999,999'), TO_CHAR(SALARY*12,'999,999,999') )AS "연봉"
+FROM EMPLOYEE;
 
 --7 
-select emp_id, emp_name, dept_code
-from employee
-where dept_code in ('D5', 'D9')  and extract(year from Hire_date) = 2004;
+SELECT EMP_ID, EMP_NAME, DEPT_CODE
+FROM EMPLOYEE
+WHERE DEPT_CODE IN ('D5', 'D9')  AND EXTRACT(YEAR FROM HIRE_DATE) = 2004;
 
 
 --8
-select emp_name, hire_date,   floor(sysdate-hire_date)||'일'
-from employee;
+SELECT EMP_NAME, HIRE_DATE,   FLOOR(SYSDATE-HIRE_DATE)||'일'
+FROM EMPLOYEE;
 
 
 --9 *************************아... 진짜.. 
 
-select count('1'), count('2'), count('3'), count('4'), count('5'), count('6'), count('7')
-from (
+SELECT COUNT('1'), COUNT('2'), COUNT('3'), COUNT('4'), COUNT('5'), COUNT('6'), COUNT('7')
+FROM (
 
-                select case
-                                when extract(year from hire_date) = '1998' then '1'
-                                when extract(year from hire_date) = '1999' then '2'
-                                when extract(year from hire_date) = '2000' then '3'
-                                when extract(year from hire_date) = '2001' then '4'
-                                when extract(year from hire_date) = '2002' then '5'
-                                when extract(year from hire_date) = '2003' then '6'
-                                when extract(year from hire_date) = '2004' then '7'
-                                else '0'
-                            end
-                from employee
+                SELECT CASE
+                                WHEN EXTRACT(YEAR FROM HIRE_DATE) = '1998' THEN '1'
+                                WHEN EXTRACT(YEAR FROM HIRE_DATE) = '1999' THEN '2'
+                                WHEN EXTRACT(YEAR FROM HIRE_DATE) = '2000' THEN '3'
+                                WHEN EXTRACT(YEAR FROM HIRE_DATE) = '2001' THEN '4'
+                                WHEN EXTRACT(YEAR FROM HIRE_DATE) = '2002' THEN '5'
+                                WHEN EXTRACT(YEAR FROM HIRE_DATE) = '2003' THEN '6'
+                                WHEN EXTRACT(YEAR FROM HIRE_DATE) = '2004' THEN '7'
+                                ELSE '0'
+                            END
+                FROM EMPLOYEE
                 
 )
-where ;
+WHERE ;
 
-select decode(1998 is null, 0, count(*))
+SELECT DECODE(1998 IS NULL, 0, COUNT(*))
 
-from (
-                select      count(decode(extract(year from hire_date), '1998' , '1')) as "1998"
-                             count(decode(extract(year from hire_date) ,'1999', '2') )as "1999",
-                             count( decode(extract(year from hire_date) ,'2000', '3')) as "2000",
-                             count( decode(extract(year from hire_date) ,'2001', '4')) as "2001",
-                               count( decode(extract(year from hire_date) ,'2002', '5')) as "2002",
-                                count( decode(extract(year from hire_date) ,'2003', '6')) as "2003",
-                                 count( decode(extract(year from hire_date) ,'2004', '7')) as "2004"
-                from employee
+FROM (
+                SELECT      COUNT(DECODE(EXTRACT(YEAR FROM HIRE_DATE), '1998' , '1')) AS "1998"
+                             COUNT(DECODE(EXTRACT(YEAR FROM HIRE_DATE) ,'1999', '2') )AS "1999",
+                             COUNT( DECODE(EXTRACT(YEAR FROM HIRE_DATE) ,'2000', '3')) AS "2000",
+                             COUNT( DECODE(EXTRACT(YEAR FROM HIRE_DATE) ,'2001', '4')) AS "2001",
+                               COUNT( DECODE(EXTRACT(YEAR FROM HIRE_DATE) ,'2002', '5')) AS "2002",
+                                COUNT( DECODE(EXTRACT(YEAR FROM HIRE_DATE) ,'2003', '6')) AS "2003",
+                                 COUNT( DECODE(EXTRACT(YEAR FROM HIRE_DATE) ,'2004', '7')) AS "2004"
+                FROM EMPLOYEE
                 
         ) 
         
- having         ;
-select extract(year from hire_date) from employee;
+ HAVING         ;
+SELECT EXTRACT(YEAR FROM HIRE_DATE) FROM EMPLOYEE;
 
 
 -------------------------------------------------------------------------
-select 
-            count(decode(extract(year from hire_DATE), '1998' , '1')) as "1998년",
-            count(decode(extract(year from hire_DATE), '1999' , '1')) as "1999년",
-            count(decode(extract(year from hire_DATE), '2000' , '1')) as "2000년",
-            count(decode(extract(year from hire_DATE), '2001' , '1')) as "2001년",
-            count(decode(extract(year from hire_DATE), '2002' , '1')) as "2002년",
-            count(decode(extract(year from hire_DATE), '2003' , '1')) as "2003년",
-            count(decode(extract(year from hire_DATE), '2004' , '1')) as " 2004년",
-            count(emp_name) as "전체 직원수"
+SELECT 
+            COUNT(DECODE(EXTRACT(YEAR FROM HIRE_DATE), '1998' , '1')) AS "1998년",
+            COUNT(DECODE(EXTRACT(YEAR FROM HIRE_DATE), '1999' , '1')) AS "1999년",
+            COUNT(DECODE(EXTRACT(YEAR FROM HIRE_DATE), '2000' , '1')) AS "2000년",
+            COUNT(DECODE(EXTRACT(YEAR FROM HIRE_DATE), '2001' , '1')) AS "2001년",
+            COUNT(DECODE(EXTRACT(YEAR FROM HIRE_DATE), '2002' , '1')) AS "2002년",
+            COUNT(DECODE(EXTRACT(YEAR FROM HIRE_DATE), '2003' , '1')) AS "2003년",
+            COUNT(DECODE(EXTRACT(YEAR FROM HIRE_DATE), '2004' , '1')) AS " 2004년",
+            COUNT(EMP_NAME) AS "전체 직원수"
             
 FROM EMPLOYEE;            
 
@@ -333,63 +333,63 @@ FROM EMPLOYEE;
 
 
 --10
-select emp_name, dept_title
-from employee join department on (dept_code = dept_id)
-where dept_code in ('D5', 'D6', 'D9')
-order by 2;
+SELECT EMP_NAME, DEPT_TITLE
+FROM EMPLOYEE JOIN DEPARTMENT ON (DEPT_CODE = DEPT_ID)
+WHERE DEPT_CODE IN ('D5', 'D6', 'D9')
+ORDER BY 2;
 
 
 --11
-select dept_code, count(*), round(avg(salary))
-from employee
-where job_code != 'J1'
-group by dept_code;
+SELECT DEPT_CODE, COUNT(*), ROUND(AVG(SALARY))
+FROM EMPLOYEE
+WHERE JOB_CODE != 'J1'
+GROUP BY DEPT_CODE;
 
 
 --12
-select extract(year from hire_date), count(*)
-from employee
-where job_code != 'J1'
-group by extract(year from hire_date)
-order by 1;
+SELECT EXTRACT(YEAR FROM HIRE_DATE), COUNT(*)
+FROM EMPLOYEE
+WHERE JOB_CODE != 'J1'
+GROUP BY EXTRACT(YEAR FROM HIRE_DATE)
+ORDER BY 1;
 
 
 --13
-select decode(substr(emp_no,8,1),'1','남','2','여', '3','남', '4','여'), round(avg(salary)), sum(salary), count(emp_name)
-from employee
-group by decode(substr(emp_no,8,1),'1','남','2','여', '3','남', '4','여')
-order by 4;
+SELECT DECODE(SUBSTR(EMP_NO,8,1),'1','남','2','여', '3','남', '4','여'), ROUND(AVG(SALARY)), SUM(SALARY), COUNT(EMP_NAME)
+FROM EMPLOYEE
+GROUP BY DECODE(SUBSTR(EMP_NO,8,1),'1','남','2','여', '3','남', '4','여')
+ORDER BY 4;
 
 --15
-select decode(substr(emp_no,8,1),'1','남','2','여', '3','남', '4','여'), count(emp_name)
-from employee
-group by decode(substr(emp_no,8,1),'1','남','2','여', '3','남', '4','여')
-order by 1;
+SELECT DECODE(SUBSTR(EMP_NO,8,1),'1','남','2','여', '3','남', '4','여'), COUNT(EMP_NAME)
+FROM EMPLOYEE
+GROUP BY DECODE(SUBSTR(EMP_NO,8,1),'1','남','2','여', '3','남', '4','여')
+ORDER BY 1;
 
 --15 
-select dept_code, count(emp_name)
-from employee
-group by dept_code
-having count(emp_name) > 3;
+SELECT DEPT_CODE, COUNT(EMP_NAME)
+FROM EMPLOYEE
+GROUP BY DEPT_CODE
+HAVING COUNT(EMP_NAME) > 3;
 
 --16
-select JOB_CODE, DEPT_CODE, count(emp_name)
-from employee
-group by  job_code, dept_code
-having count(emp_name) >= 3;
+SELECT JOB_CODE, DEPT_CODE, COUNT(EMP_NAME)
+FROM EMPLOYEE
+GROUP BY  JOB_CODE, DEPT_CODE
+HAVING COUNT(EMP_NAME) >= 3;
 
 --17
-select manager_id, count(emp_name)
-from employee
-where manager_id is not null
-group by manager_id
-having count(emp_name) >=2
-order by 1;
+SELECT MANAGER_ID, COUNT(EMP_NAME)
+FROM EMPLOYEE
+WHERE MANAGER_ID IS NOT NULL
+GROUP BY MANAGER_ID
+HAVING COUNT(EMP_NAME) >=2
+ORDER BY 1;
 
 --18
-select dept_title, local_name
-from department join location on (local_code = location_id);
+SELECT DEPT_TITLE, LOCAL_NAME
+FROM DEPARTMENT JOIN LOCATION ON (LOCAL_CODE = LOCATION_ID);
 
 --19 
-select local_name, national_name
-from location join national using (national_code);
+SELECT LOCAL_NAME, NATIONAL_NAME
+FROM LOCATION JOIN NATIONAL USING (NATIONAL_CODE);

@@ -38,7 +38,7 @@ WHERE 사원명 = '유재식' ;
  FROM EMPLOYEE E
  ORDER BY E.EMP_NAME;
  
- --ROW넘이 보니까 고정숫자네? 기본키를 기준으로 잡나봐???
+ --ROWnum이 보니까 고정숫자네? 기본키를 기준으로 잡나봐???
  
  SELECT ROWNUM, E.*
  FROM EMPLOYEE E
@@ -193,6 +193,9 @@ FROM EMPLOYEE;
 
 
 -------------여기까지 RESULTSET에서 순서를 부여하는 방법을 알아 봤따. 
+
+
+
 -- 계층형 쿼리 -> 댓글 조회해서 가져올 때 사용한다. ✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰✰
 
 -- A 
@@ -207,7 +210,7 @@ FROM EMPLOYEE;
 SELECT LEVEL, EMP_ID, EMP_NAME, MANAGER_ID
 FROM EMPLOYEE
         START WITH EMP_ID = 200
-        CONNECT BY PRIOR EMP_ID = MANAGER_ID
+        CONNECT BY PRIOR EMP_ID = MANAGER_ID;
         
         
         
@@ -253,7 +256,7 @@ FROM EMPLOYEE
         
         
         --SELECT는 끝...
-        
+        -------------------------------------------------------------------------------------------------------------------------------------
         
         -- DDL(데이터 정의 언어 / DATA DEFINITION LANGUAGE) : 테이블에 관한 것에 집중할 예정
         --1. 테이블을 생성 (CREATE는 테이블만 생성하는 것이 아니라 ORACLE에서 관리하고 있는 

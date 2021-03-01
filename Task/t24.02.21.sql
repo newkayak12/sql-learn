@@ -95,12 +95,12 @@ FROM TB_STUDENT;
 
 --12  ****
 --정답
-select student_name, term_no
-from tb_student join tb_grade using(student_no)
-                        join tb_class using (class_no)
+SELECT STUDENT_NAME, TERM_NO
+FROM TB_STUDENT JOIN TB_GRADE USING(STUDENT_NO)
+                        JOIN TB_CLASS USING (CLASS_NO)
 
-where   substr(term_no, 1,4) like ('2007%') and class_name = '인간관계론'
-order by 1;
+WHERE   SUBSTR(TERM_NO, 1,4) LIKE ('2007%') AND CLASS_NAME = '인간관계론'
+ORDER BY 1;
 
 
 
@@ -170,9 +170,15 @@ FROM TB_CLASS_PROFESSOR;
 
 
 --14 
-SELECT  STUDENT_NAME, NVL(PROFESSOR_NAME, '지도교수 미지정')
-FROM TB_STUDENT S LEFT OUTER JOIN TB_PROFESSOR P ON (COACH_PROFESSOR_NO = PROFESSOR_NO);
---WHERE  S.COACH_PROFESSOR_NO = ;
+SELECT  STUDENT_NAME, NVL(PROFESSOR_NAME ,'지도교수 미지정')
+FROM TB_STUDENT 
+                                left JOIN TB_DEPARTMENT  USING(DEPARTMENT_NO)
+                                left JOIN TB_PROFESSOR ON (PROFESSOR_NO = COACH_PROFESSOR_NO)
+                                
+where   department_name = '서반아어학과' ;
+                                
+                                
+                                
 
 SELECT *
 FROM TB_PROFESSOR;
@@ -218,7 +224,7 @@ WHERE DEPARTMENT_NO IN (SELECT DEPARTMENT_NO FROM TB_STUDENT WHERE STUDENT_NAME 
 SELECT STUDENT_NO, STUDENT_NAME
 FROM ( 
 
-            SELECT  STUDENT_NO, STUDENT_NAME, DEPARTMENT_NAME, avg(POINT)
+            SELECT  STUDENT_NO, STUDENT_NAME, DEPARTMENT_NAME, AVG(POINT)
             FROM TB_STUDENT JOIN TB_DEPARTMENT USING(DEPARTMENT_NO)
                                      JOIN TB_GRADE USING (STUDENT_NO)
             WHERE DEPARTMENT_NAME = '국어국문학과' 
@@ -276,9 +282,9 @@ GROUP BY STUDENT_NO;
 
 --19
     SELECT  E. DEPARTMENT_NAME AS "게열 학과명", ROUND(  (SELECT AVG(POINT)
-                                                            FROM TB_GRADE 
-                                                            JOIN TB_STUDENT S USING(STUDENT_NO)
-                                                            WHERE E.DEPARTMENT_NO = S.DEPARTMENT_NO), 1) AS "전공 평점"
+                                                                                                    FROM TB_GRADE 
+                                                                                                    JOIN TB_STUDENT S USING(STUDENT_NO)
+                                                                                                    WHERE E.DEPARTMENT_NO = S.DEPARTMENT_NO), 1) AS "전공 평점"
     
 FROM TB_DEPARTMENT E
 WHERE CATEGORY IN (SELECT CATEGORY FROM TB_DEPARTMENT WHERE DEPARTMENT_NAME = '환경조경학과')

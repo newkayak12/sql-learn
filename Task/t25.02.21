@@ -54,11 +54,11 @@ WHERE SAL_LEVEL IN (
 
 --1.직급이 대표, 부사장이 아닌 모든 사원을 부서별로 출력. 
 
-SELECT dept_title, e.*
-FROM EMPLOYEE e  JOIN JOB j on (e.job_code = j.JOB_CODE)
+SELECT DEPT_TITLE, E.*
+FROM EMPLOYEE E  JOIN JOB J ON (E.JOB_CODE = J.JOB_CODE)
                             JOIN DEPARTMENT ON (DEPT_ID = DEPT_CODE)
 WHERE  JOB_NAME NOT IN ('대표', '부사장')
-order by 1;
+ORDER BY 1;
 
 
 
@@ -133,19 +133,19 @@ WHERE DEPT_TITLE = '기술지원부' AND SALARY > 2000000;
 
 --3. 직급이 J1, J2, J3이 아닌 사원중에서 자신의 부서별 평균급여보다 많은 급여를 받는 사원출력.
 -- 부서코드, 사원명, 급여, 부서별 급여평균
-select dept_code, avg(salary)
-from employee
-group by dept_code;
+SELECT DEPT_CODE, AVG(SALARY)
+FROM EMPLOYEE
+GROUP BY DEPT_CODE;
 
-select dept_code, emp_name,salary,(select avg(salary) from employee l where e.dept_code = l.dept_code)
-from employee e
-where dept_code not in ('J1','J2','J3')and salary >  (select avg(salary) from employee l where e.dept_code = l.dept_code)
-order by 1;
+SELECT DEPT_CODE, EMP_NAME,SALARY,(SELECT AVG(SALARY) FROM EMPLOYEE L WHERE E.DEPT_CODE = L.DEPT_CODE)
+FROM EMPLOYEE E
+WHERE DEPT_CODE NOT IN ('J1','J2','J3')AND SALARY >  (SELECT AVG(SALARY) FROM EMPLOYEE L WHERE E.DEPT_CODE = L.DEPT_CODE)
+ORDER BY 1;
 
-select dept_code, avg(salary)
-from employee
-group by dept_code
-order by 1;
+SELECT DEPT_CODE, AVG(SALARY)
+FROM EMPLOYEE
+GROUP BY DEPT_CODE
+ORDER BY 1;
 
 
 
@@ -155,61 +155,92 @@ order by 1;
 
 
 -- 
-select dept_code, emp_name, salary, e.avg(salary)
-from employee l join (select dept_code, avg(salary)
-                                from employee
-                                group by dept_code) e
-                        on    (e.dept_code = l.dept_code)  ;
+SELECT DEPT_CODE, EMP_NAME, SALARY, E.AVG(SALARY)
+FROM EMPLOYEE L JOIN (SELECT DEPT_CODE, AVG(SALARY)
+                                FROM EMPLOYEE
+                                GROUP BY DEPT_CODE) E
+                        ON    (E.DEPT_CODE = L.DEPT_CODE)  ;
                         
               
 ----
-select e.dept_code, e.emp_name, e.salary
-from (
-            select dept_code, emp_name, salary
-            from employee 
-            where dept_code not in ('J1', 'J2', 'J3')
-            order by 1
+SELECT E.DEPT_CODE, E.EMP_NAME, E.SALARY
+FROM (
+            SELECT DEPT_CODE, EMP_NAME, SALARY
+            FROM EMPLOYEE 
+            WHERE DEPT_CODE NOT IN ('J1', 'J2', 'J3')
+            ORDER BY 1
          
-        )e
-where   e. salary   > (  select avg(salary) 
-                                  from employee 
-                                  group by dept_code);
+        )E
+WHERE   E. SALARY   > (  SELECT AVG(SALARY) 
+                                  FROM EMPLOYEE 
+                                  GROUP BY DEPT_CODE);
             
 
 
 
 -- 차태연, 전지연 사원의 급여등급(EMPLYEE테이블의 SAL_LEVEL컬럼)과 같은 사원의 직급명, 사원명을 출력.
-select sal_level, emp_name, job_name
-from employee join job using (job_code)
-where sal_level in (select sal_level from employee where emp_name in ('차태연', '전지연'));
+SELECT SAL_LEVEL, EMP_NAME, JOB_NAME
+FROM EMPLOYEE JOIN JOB USING (JOB_CODE)
+WHERE SAL_LEVEL IN (SELECT SAL_LEVEL FROM EMPLOYEE WHERE EMP_NAME IN ('차태연', '전지연'));
 
 
--- select문 종합
+-- SELECT문 종합
 --1. 
-select emp_name, dept_code, salary
-from employee join department on (dept_code = dept_id)
-where dept_title = '기술지원부';
+SELECT EMP_NAME, DEPT_CODE, SALARY
+FROM EMPLOYEE JOIN DEPARTMENT ON (DEPT_CODE = DEPT_ID)
+WHERE DEPT_TITLE = '기술지원부';
 
 --2.
-select emp_name, dept_code, salary
-from employee e join department l on (e.dept_code = l.dept_id)
-where dept_title = '기술지원부' 
+SELECT EMP_NAME, DEPT_CODE, SALARY
+FROM EMPLOYEE E JOIN DEPARTMENT L ON (E.DEPT_CODE = L.DEPT_ID)
+WHERE DEPT_TITLE = '기술지원부' 
                 AND
-            salary = (select max(salary) from employee  j where e.dept_code =j.dept_code );
+            SALARY = (SELECT MAX(SALARY) FROM EMPLOYEE  J WHERE E.DEPT_CODE =J.DEPT_CODE );
             
             
 --3 
 
 --3.1
-select l.emp_id as "사원의 사번", l.emp_name  as "사원" , e.emp_name  as "매니저", l.salary as "사원의 월급"
-from employee e join employee l on (e.emp_id = l.manager_id);
+SELECT L.EMP_ID AS "사원의 사번", L.EMP_NAME  AS "사원" , E.EMP_NAME  AS "매니저", L.SALARY AS "사원의 월급"
+FROM EMPLOYEE E JOIN EMPLOYEE L ON (E.EMP_ID = L.MANAGER_ID);
 
 --3.2
-select e1.emp_id, e1.emp_name, (select m.emp_name from employee m where m.emp_id = e1.manager_id) as "매니저 이름", e1.salary
-from employee e1;
+SELECT E1.EMP_ID, E1.EMP_NAME, (SELECT M.EMP_NAME FROM EMPLOYEE M WHERE M.EMP_ID = E1.MANAGER_ID) AS "매니저 이름", E1.SALARY
+FROM EMPLOYEE E1;
 
 
-select *
-from employee;
+SELECT *
+FROM EMPLOYEE;
             
+            
+--4. 
+SELECT E.EMP_NAME, E.DEPT_CODE, E.SALARY, E.SAL_LEVEL
+FROM EMPLOYEE E
+WHERE E.SALARY >= (SELECT AVG(M.SALARY) FROM EMPLOYEE M WHERE E.JOB_CODE = M.JOB_CODE) ;
 
+
+
+SELECT *
+FROM EMPLOYEE;
+SELECT *
+FROM SAL_GRADE;
+
+--5. \
+SELECT DEPT_TITLE, FLOOR(AVG(SALARY))
+FROM EMPLOYEE JOIN DEPARTMENT ON (DEPT_ID = DEPT_CODE)
+GROUP BY DEPT_TITLE
+HAVING AVG(SALARY) >2200000;
+
+
+--6
+SELECT EMP_NAME, JOB_NAME, DEPT_TITLE, (SALARY + (SALARY  * NVL(BONUS,1)))*12 AS "연봉"
+FROM EMPLOYEE E JOIN JOB J ON(E.JOB_CODE = J.JOB_CODE)
+                        JOIN DEPARTMENT D ON (E.DEPT_CODE = D.DEPT_ID)
+WHERE (((SALARY + (SALARY  * NVL(BONUS,1)))*12) < (SELECT AVG((SALARY + (SALARY  * NVL(BONUS,1)))*12)
+                                                                                             FROM EMPLOYEE  L       
+                                                                                             WHERE E.JOB_CODE = L.JOB_CODE)) 
+                                                        AND 
+                                                        
+                                SUBSTR(EMP_NO, 8, 1) = '2';
+                        
+                        
