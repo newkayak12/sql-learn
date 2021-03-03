@@ -122,7 +122,7 @@ INSERT INTO TBL_CONS_N VALUES(1,'USER01', 'USER01', '김상현', '여', '010-123
 
 DROP TABLE TBL_CONS_NN;
 --테이블 명은 중복이 있으면 안된다.
-
+DROP TABLE TBL_CONS_NN;
 CREATE TABLE TBL_CONS_NN(
     USER_NO NUMBER CONSTRAINT TBL_CONS_NN_USER_NO_NN NOT NULL, -- NOT NULL 선언 방법 & CONSTRAINT_NAME주는 방법 > 나중에 ALTER로 제약 조건 수정하는데 그 때 이름을 사용
     USER_ID VARCHAR2(20) NOT NULL, 
@@ -656,9 +656,9 @@ CREATE TABLE USER_CHECK(
     USER_NO NUMBER,
     USER_NAME VARCHAR2(20),
     GENDER VARCHAR2(10) CHECK(GENDER IN ('남', '여')), --CHECK(비교연산 안이 TRUE이면) GENDER에 들어갈 수 있음
-    age number,
+    AGE NUMBER,
     
-    check(age>19 and user_no >0)
+    CHECK(AGE>19 AND USER_NO >0)
     
     
 );
@@ -676,54 +676,55 @@ INSERT INTO USER_CHECK VALUES (1, '양호준', '남',19);
 SELECT *
 FROM USER_CHECK;
 
-drop table user_check;
---check 계속 합시다!!!!!!
+DROP TABLE USER_CHECK;
+--CHECK 계속 합시다!!!!!!
 
 
 INSERT INTO USER_CHECK VALUES (1, '양호준', '남',19);
 INSERT INTO USER_CHECK VALUES (0, '양호준', '남',20);
 
--- 안 들어가 이렇게 check로 못 박아두면
+-- 안 들어가 이렇게 CHECK로 못 박아두면
 
 
 
-create table test_member(
-    member_code number primary Key, 
-    member_id varchar2(20) unique,
-    member_pwd char(20) not null,
-    member_name nchar(10), 
-    member_adder char(50) not null,
-    gender varchar2(5) check( gender in ('남', '여')),
-    phone varchar2 (20) not null
+CREATE TABLE TEST_MEMBER(
+    MEMBER_CODE NUMBER PRIMARY KEY, 
+    MEMBER_ID VARCHAR2(20) UNIQUE,
+    MEMBER_PWD CHAR(20) NOT NULL,
+    MEMBER_NAME NCHAR(10), 
+    MEMBER_ADDER CHAR(50) NOT NULL,
+    GENDER VARCHAR2(5) CHECK( GENDER IN ('남', '여')),
+    PHONE VARCHAR2 (20) NOT NULL
 );
 
 
-comment on column test_member.member_code is '회원전용코드';
-comment on column test_member.member_id is '회원 아이디';
-comment on column test_member.member_pwd is '회원 비밀번호';
-comment on column test_member.member_name is '회원 이름';
-comment on column test_member.member_adder is '회원 거주지';
-comment on column test_member.gender is '성별';
-comment on column test_member.phone is '회원 연락처';
+COMMENT ON COLUMN TEST_MEMBER.MEMBER_CODE IS '회원전용코드';
+COMMENT ON COLUMN TEST_MEMBER.MEMBER_ID IS '회원 아이디';
+COMMENT ON COLUMN TEST_MEMBER.MEMBER_PWD IS '회원 비밀번호';
+COMMENT ON COLUMN TEST_MEMBER.MEMBER_NAME IS '회원 이름';
+COMMENT ON COLUMN TEST_MEMBER.MEMBER_ADDER IS '회원 거주지';
+COMMENT ON COLUMN TEST_MEMBER.GENDER IS '성별';
+COMMENT ON COLUMN TEST_MEMBER.PHONE IS '회원 연락처';
 
-select *
-from test_member;
+SELECT *
+FROM TEST_MEMBER;
 
 
 --시험
---데이터베이스의 특징 (dbms특징 ) 동시성, 무결성, 계속적인 변화 공유가 되고 내용에 의한 참조
---sql구문을 봤을 때 뭐가 있는지 
+--데이터베이스의 특징 (DBMS특징 ) 동시성, 무결성, 계속적인 변화 공유가 되고 내용에 의한 참조
+--SQL구문을 봤을 때 뭐가 있는지 
 --타입 (숫자/문자/날짜) 날짜 타입
---평균구하는 select문
+--평균구하는 SELECT문
 --년수/ 나이/ 
 -- 개월수로 나눠서하는 방법?
 --합계/ 평균
 --그룹으로 묶었을 때 조건문 작성
 --민번 처리(별로)
---date를 to_char() 로 바꾸는 
- --select 문을 실행하는 순서  (from/ where/ group by/ having/ select /order by)
+--DATE를 TO_CHAR() 로 바꾸는 
+ --SELECT 문을 실행하는 순서  (FROM/ WHERE/ GROUP BY/ HAVING/ SELECT /ORDER BY)
  --계산식(산술연산 계산)
- --조건에 따라서 select문에서 분기처리(decode/ case)_
- -- 테이블을 보고 정렬하는데 > 정렬하는데 문제가 있어서 그걸 inline으로 > group by로 묶었을 때 컬럼 호출 할 때 문제 e.*
- -- sql구문을 보고 문제를 찾아내는 것(조건을 잘 읽고 문제를 찾아내는 문제) > group by로 묶여 있을 때 조건을 작성하는 방법은??????????????????????????
+ --조건에 따라서 SELECT문에서 분기처리(DECODE/ CASE)_
+ -- 테이블을 보고 정렬하는데 > 정렬하는데 문제가 있어서 그걸 INLINE으로 > GROUP BY로 묶었을 때 컬럼 호출 할 때 문제 E.*
+ -- SQL구문을 보고 문제를 찾아내는 것(조건을 잘 읽고 문제를 찾아내는 문제) > GROUP BY로 묶여 있을 때 조건을 작성하는 방법은??????????????????????????
+
 

@@ -290,7 +290,7 @@ CREATE TABLE TBL_DATA_STR(
 
 SELECT * FROM TBL_DATA_STR;
 
-
+drop table tbl_data_str;
 INSERT INTO TBL_DATA_STR VALUES('ABC','ACB', 'ABC','ABC');
 INSERT INTO TBL_DATA_STR VALUES ('가나', '가', '가나다','가나');
 INSERT INTO TBL_DATA_STR VALUES ('가', '가', '가','가나');
