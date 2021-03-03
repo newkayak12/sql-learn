@@ -816,3 +816,4 @@ commit;
 --commit을 하기 전까지 임시로 가지고 있다.
 
 -- 업뎃/ 삽입/ 수정에 대해서 항상 트렌젝션처리를...
+grant connect to QWER;
