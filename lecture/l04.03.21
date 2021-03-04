@@ -1,0 +1,824 @@
+-- VIEW : DB에 있는 녀석들을 보여주는 것(실질적으로 조작되는 것이 아니라 가상으로 연산되어 보여주는 역할을 한다.) > RESULTSET을 테이블로 가져와서 보여주는 것
+--  INLINEVIEW / STORED_VIEW(FROM 절에 있는 애를 그냥 아예 생성해버리는)
+-- 할 때마다 JOIN에 UNION하면 어휴..
+-- 그냥 만들어주고 쓰는 거지..
+
+
+-- VIEW : 가상의 테이블 (RESULT SET으로 만들어진)  ->LELECT 문을 이용해서  실제 테이블에서 데이터를 가져와 사용한다. 
+-- VIEW는 ORACLE OBJECT 중 하나로 DDL 구문을 이용하여 생성(CREATE), 수정 (INSERT), 삭제(DROP ) 한다. 
+
+--   CREATE OR REPLACE VIEW (뷰이름) [(컬럼명1, 컬럼명2 ...)]
+--    AS  SELECT A1, A2 ...
+
+-- 별칭은 AS 뒤에 별칭을 쓰던 뷰 이름 뒤에 쓰던 하면 별칭이 붙는다.
+----------------------------------------------> 그냥 통합해 놓은 뷰를 마지 변수를 선언해서 잡아뒀다고 생각하면 된다. 
+
+
+
+CREATE VIEW V_EMPLOYEEALL
+AS SELECT *
+FROM EMPLOYEE
+JOIN DEPARTMENT ON (DEPT_CODE = DEPT_ID)
+JOIN JOB USING (JOB_CODE);
+
+-- > RESOURCE ROLE에 VIEW 생성은 없기 때문에 권한을 따로 주어야한다.
+-- > GRANT CREATE VIEW TO KH;하면 KH에 VIEW를 만들 권한이 부여된다.
+
+SELECT *
+FROM V_EMPLOYEEALL;
+
+-- VIEW를 생성하고나면 VIEW 명칭을 FROM절에 사용하여 테이블처럼 사용이 가능하다. 
+
+SELECT *
+FROM USER_VIEWS;
+
+
+
+-- V_EMPLOYEEALL	277	 : VIEW_NAME
+-- 277 : TEXT_LENGTH
+
+
+--"SELECT "JOB_CODE","EMP_ID","EMP_NAME","EMP_NO","EMAIL","PHONE","DEPT_CODE","SAL_LEVEL","SALARY","BONUS","MANAGER_ID","HIRE_DATE","ENT_DATE","ENT_YN","DEPT_ID","DEPT_TITLE","LOCATION_ID","JOB_NAME"
+--FROM EMPLOYEE
+--JOIN DEPARTMENT ON (DEPT_CODE = DEPT_ID)
+--JOIN JOB USING (JOB_CODE)"		:TEXT  
+
+--FROM절에 쓰면 위의 녀석이 실행되는 식임
+
+-- > 통계 같은거 낼 때도 사용한다. 
+
+
+
+
+    CREATE VIEW V_EMP_UNION
+        AS 
+        (  SELECT EMP_NAME, SALARY
+            FROM EMPLOYEE
+            
+            UNION
+            
+            SELECT DEPT_TITLE, 10
+            FROM DEPARTMENT           );
+    
+    
+    DROP VIEW V_EMP_UNION;
+
+---------------------------------------**********************??????????????????????????
+    CREATE VIEW V_EMP_AVG
+        AS ( 
+                SELECT DEPT_CODE, FLOOR(AVG(SALARY))  AS "평균"
+                FROM EMPLOYEE
+                GROUP BY DEPT_CODE
+                
+                UNION
+                
+                SELECT JOB_CODE,FLOOR( AVG(SALARY)) AS "평균"
+                FROM EMPLOYEE
+                GROUP BY JOB_CODE 
+                
+                UNION
+                
+                SELECT '총 평균' AS T, FLOOR(AVG(SALARY) )AS "평균" 
+                FROM EMPLOYEE);
+        
+     
+     -- VIEW삭제하기 
+     DROP VIEW V_EMP_UNION;
+     
+     SELECT *
+     FROM V_EMP_AVG;
+     
+     
+     
+     
+        -- VIEW 특징
+        
+        -- 1. 컬럼, 산술연산까지 포함할 수 있다. 단, 산술연산에서는 반드시 별칭을 부여
+        
+        
+        CREATE VIEW V_EMP_SALARY
+        AS 
+            SELECT EMP_NAME, (SALARY+(SALARY*NVL(BONUS,0)))*12 AS "연봉"
+            FROM EMPLOYEE;
+
+SELECT * 
+FROM V_EMP_SALARY;
+
+
+
+        -- VIEW 권한을 부여해서 이용하능하게 할 수 있다.
+        
+        CREATE USER QWERTY IDENTIFIED BY QWERTY;
+        DROP USER QWERTY;
+        GRANT SELECT ON  V_EMPLOYEEALL TO QWER;
+        
+        
+        -- VIEW로 DML활용하기
+        -- INSERT,UPDATE, DELETE > 가능하면 실제 테이블에 있는 값이 변경
+        -- 만약에 가상 컬럼(실제 테이블에 존재하지 않는 컬럼)이 존재한다면 DML은 불가능하다. 
+        
+        SELECT *
+        FROM V_EMP_SALARY; --> 가상컬럼은 이 녀석의 연봉과 같이 계산해서 만들어낸 컬럼
+        
+        UPDATE V_EMP_SALARY
+        SET 연봉 = 2000000000;
+        
+--        명령의 123 행에서 시작하는 중 오류 발생 -
+--      UPDATE V_EMP_SALARY
+--        SET 연봉 = 2000000000
+
+--오류 발생 명령행: 124 열: 13
+--오류 보고 -
+--SQL 오류: ORA-01733: VIRTUAL COLUMN NOT ALLOWED HERE
+--01733. 00000 -  "VIRTUAL COLUMN NOT ALLOWED HERE"
+--*CAUSE:    
+--*ACTION:
+--가상컬럼에 추가 못함 
+
+        UPDATE V_EMP_SALARY SET EMP_NAME = 'TEST';
+        SELECT * FROM EMPLOYEE;
+        ROLLBACK;
+        
+        --이렇게 가상테이블에서 바꾸면 실제 테이블 값도 바뀌니 유의하자
+        
+        
+        DELETE FROM V_EMP_SALARY
+        WHERE EMP_NAME = '방명수';
+        SELECT * FROM EMPLOYEE;
+        ROLLBACK;
+        
+        -- 똑같이 실제 테이블에 영향
+        
+        CREATE VIEW V_EMP
+        AS 
+            SELECT EMP_ID, EMP_NO, EMP_NAME, EMAIL, PHONE, JOB_CODE, SAL_LEVEL
+            FROM EMPLOYEE;
+        
+        
+        INSERT INTO V_EMP VALUES('500', '930710-120222', '김상현', 'SANG@SANG.COM', '01022222222', 'J2', 'S3');
+        
+        
+        SELECT *
+        FROM V_EMP;
+        
+        SELECT *
+        FROM EMPLOYEE;  -- 뷰에 뽑아낸 것 (그리구 추가한 것 ) 이외에는 NULL로 들어갔네 // 그리고 가상테이블에서도 NOT NULL은 유효하니까 그것도 신경써야한다.
+        
+        --...가끔 이렇게 생각하세요...
+        
+        UPDATE V_EMP SET DEPT_CODE = 'D5' WHERE EMP_NAME = '김상현';
+        
+        
+        
+
+--명령의 169 행에서 시작하는 중 오류 발생 -
+--        UPDATE V_EMP SET DEPT_CODE = 'D5' WHERE EMP_NAME = '김상현'
+--오류 발생 명령행: 169 열: 26
+--오류 보고 -
+--SQL 오류: ORA-00904: "DEPT_CODE": INVALID IDENTIFIER
+--00904. 00000 -  "%S: INVALID IDENTIFIER"
+--*CAUSE:    
+--*ACTION:
+--VIEW에 있는 애들 이외에는 불가능
+
+    -- DML구문이 조작이 불가능한 경우    
+--    1. VIEW에서 정의하고 있는 컬럼이 아닌 대상을 조작하는 경우
+--    2. VIEW에 포함되어 있지 않은 컬럼 중 베이스(실제 테이블)가 되는 컬럼에 NOT NULL제약 조건이 걸려있는 경우
+--    3. 산술연산으로 구성된 컬럼(가상 컬럼)
+--    4. 그룹함수, GROUP BY절이 포함된 VIEW > 얘도 그냥 종합되어 있는 녀석이니까.
+--    5. DISTINCT를 포함하고 있는 경우
+--    6. JOIN을 통해서 여러 테이블을 연결하고 있는 경우 (예외가 있어서 조금 애매함) >> UPDATE/DELETE는 상관이 없는데 INSERT의 경우 연관관계가 확보가 안되면 불가능
+
+-- 6 예시
+
+--CREATE OR REPLACE VIEW V_JOINEMP
+--AS SELECT EMP_ID, EMP_NAME, DEPT_TITLE
+--FROM EMPLOYEE
+--JOIN DEPARTMENT ON (DEPT_CODE = DEPT_ID);
+--INSERT INTO V_JOINEMP VALUES(888, ‘조세오’, ‘인사관리부’);
+
+        
+        
+       --VIEW 옵션 (OBJ는 이름이 중복이 안됨
+       
+--       1. OR REPLACE
+--             지정한 이름의 뷰가 있으면 덮어쓰고 없으면 만들어라
+--       2. FORCE/NOFORCE
+--            테이블이 실존하지 않더라도 일단 뷰를 만들어 놓는 것
+--        3. WITH CHECK OPTION
+--            옵션을 설정한 컬럼의 값을 수정 불가하게함
+--        4. WITH READ ONLY
+--            조회만 가능하게함
+
+
+
+--1.  OR REPLACE
+CREATE VIEW V_EMP_SALARY
+AS  
+    SELECT *
+    FROM EMPLOYEE;
+         
+         
+         
+--         오류 보고 -
+--ORA-00955: NAME IS ALREADY USED BY AN EXISTING OBJECT
+--00955. 00000 -  "NAME IS ALREADY USED BY AN EXISTING OBJECT"
+--*CAUSE:    
+--*ACTION:
+        
+        
+CREATE OR REPLACE VIEW V_EMP_SALARY
+    AS  
+        SELECT *
+        FROM EMPLOYEE;
+        
+-- 해당 뷰의 이름을 갖고있는 녀석이 없으면 생성/ 있으면 덮어쓰기
+
+        
+ 
+ 
+ --2 FORCE/NOFORCE(DEFAULT)  옵션 
+ 
+ CREATE VIEW V_FORCETEST
+    AS  
+        SELECT A,B,C 
+        FROM NOTHINGBETTER;
+        
+--오류 보고 -
+--ORA-00942: TABLE OR VIEW DOES NOT EXIST
+--00942. 00000 -  "TABLE OR VIEW DOES NOT EXIST"
+--*CAUSE:    
+--*ACTION:        
+        
+        
+        
+        
+     CREATE FORCE VIEW V_FORCETEST
+        AS  
+            SELECT A,B,C 
+            FROM NOTHINGBETTER;
+        
+
+    SELECT *
+    FROM V_FORCETEST;
+    --조회하됨 원래 테이블이 없어서
+    -- 테이블을 만들면 뷰가 조회는 가능
+    
+    
+    
+    
+    -- 3. WITH CHECK OPTION : 
+    -- SELECT 문의 WHERE 절에서 사용한 컬럼을 수정하지 못하게 하는 옵션
+    CREATE OR REPLACE VIEW V_CHECKOPTION
+    AS  
+        SELECT EMP_ID, EMP_NAME, SALARY, DEPT_CODE
+        FROM EMPLOYEE
+        WHERE DEPT_CODE = 'D5';
+        
+    DROP VIEW V_CHECKOPTION;
+        
+        
+        SELECT *
+        FROM V_CHECKOPTION;
+        
+        
+        UPDATE V_CHECKOPTION 
+        SET DEPT_CODE = 'D6';
+        ROLLBACK;
+        
+        --만약에 D6로 만들면 VIEW를 만든 이유가??
+  CREATE OR REPLACE VIEW V_CHECKOPTION
+    AS  
+        SELECT EMP_ID, EMP_NAME, SALARY, DEPT_CODE
+        FROM EMPLOYEE
+        WHERE DEPT_CODE = 'D5'WITH CHECK OPTION;
+        
+        
+        
+        UPDATE V_CHECKOPTION 
+        SET DEPT_CODE = 'D6';
+        
+--        오류 보고 -
+--ORA-01402: VIEW WITH CHECK OPTION WHERE-CLAUSE VIOLATION
+
+--이렇게 수정을 막을  수 있다.
+-- WITH CHECK OPTION을 설정한 것만 못바꾸게 하는거라 다른 것은 바꾸게 할 수 있음
+
+-- 4. WITH READ ONLY 
+-- VIEW자체를 읽기 전용으로 만들어버림
+
+
+    CREATE OR REPLACE VIEW V_READ
+    AS
+        SELECT EMP_ID, EMP_NAME, SALARY, DEPT_CODE
+        FROM EMPLOYEE
+        WHERE DEPT_CODE= 'D5' WITH READ ONLY;
+
+
+
+    UPDATE V_READ
+    SET SALARY = 200000000;
+    
+--    
+--    오류 보고 -
+--SQL 오류: ORA-42399: CANNOT PERFORM A DML OPERATION ON A READ-ONLY VIEW
+--42399.0000 - "CANNOT PERFORM A DML OPERATION ON A READ-ONLY VIEW"
+
+
+--READ-ONLY라서 할 수가 없음
+
+-- 세미때 뷰로 해도 되겠죵?
+
+
+
+
+--SQUENCE : PK로 많이 사용합니다.!
+-- : 순차적으로 정수 값을 자동으로 생성하는 
+--
+--CREATE SEQUENCE 시퀀스 이름
+--[START WITH 숫자]
+--[INCREMENT BY 숫자] : 증가하는 텀/  I++같이
+--[MAXVALUE 숫자/NOMAXVALUE] : 최대
+--[MINVALUE 숫자/ NOMINVALUE]  : 최소
+--[CYCLE | NOCYLE] CYCLE을 하려면 최대/최소가 있어야  CYCLE을 하면 START 값으로 가는게 아니라 최소값으로 간다.
+--[CACHE|NOCACHE] : 시퀀스가 돌아가려면 NEXT VAR을 호출해서 다음 값으로 넘어가는데 그 때마다 연산처리를 할 것이냐 캐싱을 할 것이냐... 이 차이 (자주쓰면 캐싱을하는게 맞지)
+
+
+--SEQUENCE 사용
+-- 자동 번호 부여기
+
+-- CREATE SEQUENCE 시퀀스명 [옵션]
+-- 시퀀스 작동 예약어 > 시퀀스 명.NEXTVAL = 값이 늘어남.. 중복될리가..., 시퀀스 명. CURRVAL = 현재 값 출력
+
+CREATE SEQUENCE  SEQ_BASIC;
+
+SELECT SEQ_BASIC.NEXTVAL
+FROM DUAL;
+
+SELECT SEQ_BASIC.CURRVAL
+FROM DUAL;
+
+--옵션을 붙여볼게요
+CREATE SEQUENCE SEQ_OPTION
+START WITH 100
+INCREMENT BY 10;
+
+SELECT SEQ_OPTION.NEXTVAL
+FROM DUAL;
+
+
+CREATE SEQUENCE SEQ_OPTION2
+START WITH 60
+INCREMENT BY 6
+CYCLE;
+--
+--오류 보고 -
+--ORA-04015: ASCENDING SEQUENCES THAT CYCLE MUST SPECIFY MAXVALUE
+--04015. 00000 -  "ASCENDING SEQUENCES THAT CYCLE MUST SPECIFY MAXVALUE"
+--*CAUSE:    SEQUENCES THAT CYCLE MUST HAVE THEIR WRAP-WRAP SPECIFIED
+--*ACTION:   RE-CREATE THE SEQUENCE, SPECIFYING ITS WRAP-VALUE
+
+-- CYCLE은 MAX/MIN이 필요
+CREATE SEQUENCE SEQ_OPTION2
+START WITH 60
+INCREMENT BY 6
+MAXVALUE 90
+MINVALUE 0
+CYCLE;
+
+--오류 보고 -
+--ORA-04013: NUMBER TO CACHE MUST BE LESS THAN ONE CYCLE
+--04013. 00000 -  "NUMBER TO CACHE MUST BE LESS THAN ONE CYCLE"
+--*CAUSE:    NUMBER TO CACHE GIVEN IS LARGER THAN VALUES IN A CYCLE
+--*ACTION:   ENLARGE THE CYCLE, OR CACHE FEWER VALUES
+
+
+--CACHE도 필요하네..
+CREATE SEQUENCE SEQ_OPTION2
+START WITH 60
+INCREMENT BY 6
+MAXVALUE 90
+MINVALUE 0
+CYCLE
+NOCACHE;
+
+SELECT SEQ_OPTION2.NEXTVAL
+FROM DUAL;
+
+
+
+--NO CYCLE
+
+CREATE SEQUENCE SEQ_OPTION3
+START WITH 60
+INCREMENT BY 6
+MAXVALUE 90
+MINVALUE 0
+NOCACHE;
+
+
+SELECT SEQ_OPTION3.NEXTVAL
+FROM DUAL;
+
+
+--ORA-08004: SEQUENCE SEQ_OPTION3.NEXTVAL EXCEEDS MAXVALUE AND CANNOT BE INSTANTIATED
+--08004. 00000 -  "SEQUENCE %S.NEXTVAL %S %SVALUE AND CANNOT BE INSTANTIATED"
+--*CAUSE:    INSTANTIATING NEXTVAL WOULD VIOLATE ONE OF MAX/MINVALUE
+--*ACTION:   ALTER THE SEQUENCE SO THAT A NEW VALUE CAN BE REQUESTED
+
+--MAX에 다다르면 사이클이 끝남
+
+
+-- SEQUENCE이용
+
+    CREATE TABLE BOARD (
+        
+        BOARD_NO NUMBER PRIMARY KEY,
+        BOARD_TITLE VARCHAR2(200) NOT NULL,
+        BOARD_CONTENT VARCHAR2(800), 
+        BOARD_WRITER VARCHAR2(20) REFERENCES EMPLOYEE(EMP_ID),
+        BOARD_DATE DATE
+        
+    );
+    CREATE SEQUENCE SEQ_BOARD_NO;
+    
+INSERT INTO BOARD VALUES (SEQ_BOARD_NO.NEXTVAL, '어이구', 'ㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋ', '200', SYSDATE);
+INSERT INTO BOARD VALUES (SEQ_BOARD_NO.NEXTVAL, 'ㅎ허...', '좀 그랰ㅋㅋ', '200', SYSDATE);
+
+SELECT *
+FROM BOARD;
+
+--이게 시퀀스의 전부입니다!
+
+
+--SEQUENCE에 대한 정보 조회하기
+
+SELECT *
+FROM USER_SEQUENCES;
+
+SELECT 'NO_'||SEQ_BOARD_NO.NEXTVAL
+FROM DUAL;
+
+
+-- 시퀀스 수정 > ALTER
+
+ALTER SEQUENCE SEQ_BOARD_NO
+MAXVALUE 10000;
+
+
+SELECT *
+FROM USER_SEQUENCES;
+
+DROP SEQUENCE SEQ_OPTION;
+
+-- NEXTVAL, CURRVAL
+--CURRVAL는 동일 세션에서 NEXT한 번이라도 실행 한 후에 조회가능
+
+CREATE SEQUENCE SEQ_TEST;
+SELECT SEQ_TEST.CURRVAL
+FROM DUAL;
+--ORA-08002: SEQUENCE SEQ_TEST.CURRVAL IS NOT YET DEFINED IN THIS SESSION
+--08002. 00000 -  "SEQUENCE %S.CURRVAL IS NOT YET DEFINED IN THIS SESSION"
+--*CAUSE:    SEQUENCE CURRVAL HAS BEEN SELECTED BEFORE SEQUENCE NEXTVAL
+--*ACTION:   SELECT NEXTVAL FROM THE SEQUENCE BEFORE SELECTING CURRVAL
+
+-- 세션에서 적어도 한 번은 숫자를 세줘야함(NEXTVAL)
+
+-- NEXTVAL과 CURRVAL를 사용할 수 없는 경우********************************************************
+-- VIEW의 SELECT 구문
+-- DISTINCT가 포함된 SELECT 구문
+-- GROUP BY / HAVING/ ORDER BY가 있는 SELECT문
+-- SELECT, DELETE, UPDATE서브쿼리
+-- CREATE TABLE, ALTER TABLE의 DEFAULT값에
+
+
+
+
+--INDEX
+--SQL문의 처리 속도(SELECT문의)를 향상시키기 위해서 컬럼에 대해 생성하는 오라클 객체
+-- 수정작업( INSERT/ UPDATE/ DELETE)이 잦아지면 성능 저하
+--DB설계 단계에서 잘 고려해야함
+
+
+--CREATE [UNIQUE] INDEX 인덱스명)
+--ON (테이블명 [컬럼명, 컬럼명 | 함수명, 함수 계산식)]
+
+-- INDEX : 전체적인 DBMS 성능의 향상을 위해서 설정한다. >물론 잘못 설정하면 역효과가 난다.
+
+SELECT *
+FROM USER_INDEXES;
+--PRIMARY 는 UNIQUE, NOT NULL,  뿐만 아니라 INDEX도 부여됨
+
+SELECT * FROM USER_IND_COLUMNS;
+--세세한 것 조회
+SELECT * 
+FROM EMPLOYEE
+LEFT JOIN DEPARTMENT ON (DEPT_CODE=DEPT_ID)
+WHERE EMP_NAME = '김상현';  --0.015// INDEX -0.021
+
+
+CREATE INDEX IND_EMPLOYEE ON EMPLOYEE(EMP_NAME);
+DROP INDEX IND_EMPLOYEE;
+
+
+--여러 개의 컬럼에 걸어주는 결합인덱스
+CREATE INDEX IND_EMPLOYEE_COM 
+ON EMPLOYEE (EMP_NAME, DEPT_CODE);
+
+DROP INDEX IND_EMPLOYEE_COM;
+
+SELECT *
+FROM EMPLOYEE
+WHERE EMP_NAME = '박나라' AND DEPT_CODE = 'D5';
+
+
+--PL/SQL : PROCEDURAL LANGUAGE EXTENSION TO SQL (웹/ 어플은 잘 안쓴다??) > DB개발자는 많이쓰고..
+
+--SQL을 조금더 프로그램스럽게 (절차식으로)
+-- 단일행 함수 같은것도 얘로 만들 수 있어요
+
+--프로그램 로직을 짜듯이 구조가 있어요.
+-- DECLARE SECTION: DECALRE로 시작한다. 변수/상수를 선언
+-- EXECUTABLE SECTION : BEGIN으로 시작하고 제어문, 반목문, 함수 정의 등 로직을 기술
+-- EXCEPTION SECTION : EXCEPTION으로 시작 예외 처리
+
+
+--얘는 기본이 콘솔 출력을 안 해서 
+--SET SERVEROUTPUT ON;으로 바꿔줘야합니다.
+
+--SET SERVEROUTPUT ON;
+--* 프로시저를 사용하여 출력하는 내용을 화면에 보여주도록 설정하는 환경변수로
+--기본 값은 OFF여서 ON으로 변경
+
+--BEGIN
+
+--DBMS_OUTPUT.PUT_LINE(‘HELLO WORLD’); END;  > BEGIN으로 시작해서  END로 끝남
+
+
+--* PUT_LINE이라는 프로시저를 이용하여 출력(DBMS_OTUPUT패키지에 속해있음)
+ 
+
+
+--PL/SQL구문
+-- 유형이 따로 나뉨 
+
+
+--  익명 블록    ==> 이름이 없어서 재호출이 가능
+
+
+-- 프로시저
+-- 함수                ==> 이 둘은 이름이 있어서 재호출이 가능함₩
+
+
+-- 구조
+
+--DECLARE : 선언부
+        -- 변수를 선언, 상수를 선언     >>>>>>>>>>>>>> 생략 가능
+
+--BEGIN   :실행부
+        -- 제어문, 반복문, 함수 등
+
+--EXCEPTION : 예외처리부
+        -- 예외 발생상황                      >>>>>>>>>>>>>> 생략 가능
+        
+--END;        로 끝냄
+--(끝나는 지점에 꼭 '/'를 넣어야)
+
+SET SERVEROUTPUT ON;
+
+
+BEGIN
+
+    DBMS_OUTPUT.PUT_LINE('나의 첫 PL/SQL');
+    
+END;
+/
+
+
+DECLARE
+    VID VARCHAR2(20);
+    
+BEGIN
+    SELECT EMP_ID
+    INTO VID
+    FROM EMPLOYEE
+    WHERE EMP_NAME = '김상현';
+
+    DBMS_OUTPUT.PUT_LINE('VID : ' || VID);
+
+END;
+/
+
+
+--변수 선언하기
+-- 변수명 [CONSTANT] 자료형 (바이트수) [NOT NULL];
+-- 변수명 자료형:= 초기값(초기값과 함께 선언);
+
+DECLARE 
+    V_EMPNO NUMBER;
+    V_EMPNAME VARCHAR2(20);
+    TEST_NUM NUMBER := 10+30;
+    
+BEGIN
+        V_EMPNO := 999;
+        V_EMPNAME := '차태현';
+            DBMS_OUTPUT.PUT_LINE('사번: '||V_EMPNO);
+            DBMS_OUTPUT.PUT_LINE('이름: '||V_EMPNAME);
+            DBMS_OUTPUT.PUT_LINE('번호 : '||TEST_NUM);
+END;
+/
+
+
+
+
+--변수의 자료형 타입을 알아보자!
+-- 자료형은 기본자료형(ORACLE의 자료형)/  복합자료형으로 구분된다. (배열/객체와 대비되는 레코드/ 커서/ 컬렉션)
+-- 기본 자료형 : NUMBER, VARCHAR2, DATE, BOOLEAN, BINARY_INTEGER
+-- 복합 자료형 : RECORD, CURSOR, COLLECION 
+
+-- 종료 : 일반변수, 참조형 변수(테이블의 컬럼에 지정된 자료형을 가져와서 사용)
+
+-- 참조형 변수
+-- 1. %TYPE : 지정한 테이블의 컬럼의 자료형을 참조하는 레퍼런스 변수
+                DECLARE
+                        V_EMP_ID EMPLOYEE.EMP_ID %TYPE;
+                        V_SALARY EMPLOYEE.SALARY %TYPE;
+               --다른 테이블과 타입 맞출때
+                BEGIN
+                        SELECT EMP_ID, SALARY
+                        INTO V_EMP_ID, V_SALARY
+                        FROM EMPLOYEE
+                        WHERE EMP_ID ='200'; --알아서 형변환 됨
+                        DBMS_OUTPUT.PUT_LINE(V_EMP_ID||' '||V_SALARY);
+                END;
+                /
+                
+                
+-- 2. %ROWTYPE : 테티블에 지정되어 있는 한 개 ROW의 컬럼들을 통으로 가져오는 자료형 : 한 개의 데이터를 받는 자료형
+                DECLARE 
+                        V_EMP EMPLOYEE%ROWTYPE;
+                BEGIN
+                        SELECT *
+                        INTO V_EMP
+                        FROM EMPLOYEE
+                        WHERE EMP_NAME = '송종기';
+                        
+                        DBMS_OUTPUT.PUT_LINE(V_EMP.EMP_ID||V_EMP.EMP_NAME||V_EMP.SALARY);
+                END;
+                /
+-- 한 줄 자체를 가지고 온거라구요 > V_EMP안에 있는 것을 꺼내서 DBMS로
+-- 테이블을 ALTER로 변경할 수도 있는데 그거에 바꿀 때마다 대응할거야?? 그냥 이렇게 하는게 편하지 않을까??
+
+---------------------------------------------------
+-- RECODE : 객체(클래스) > 한 묶음으로 묶은 것을 타입으로 만든다.
+
+                DECLARE 
+                        TYPE MY_RECORD IS RECORD(
+                                ID EMPLOYEE.EMP_ID%TYPE,
+                                NAME EMPLOYEE.EMP_NAME%TYPE,
+                                TITLE DEPARTMENT. DEPT_TITLE%TYPE
+                        );        
+                MY MY_RECORD;
+                
+                
+                BEGIN 
+                        SELECT EMP_ID, EMP_NAME, DEPT_TITLE
+                        INTO MY
+                        FROM EMPLOYEE
+                                    JOIN DEPARTMENT ON (DEPT_CODE = DEPT_ID)
+                        WHERE EMP_NAME = '노옹철';      
+                        
+                        DBMS_OUTPUT.PUT_LINE(MY.ID ||'   '||MY.NAME||'   '||MY.TITLE);
+                END;
+                /
+                -------------------------------------------------------------------------
+                DECLARE
+                TYPE MY_RECORD IS RECORD (
+                    ID EMPLOYEE.EMP_ID%TYPE,
+                    NAME EMPLOYEE.EMP_NAME%TYPE,
+                    TITLE DEPARTMENT.DEPT_TITLE%TYPE
+                    );
+                    
+                    EMP_RECORD MY_RECORD;
+                    
+                BEGIN
+                    SLEECT EMP_ID, EMP_NAME, DEPT_TITLE
+                    INTO 
+                
+                
+
+
+--컬렉션 자료형
+-- 컬렉션은 자바의 배열과 같은 형태를 가진다. 
+-- 인덱스 값도 설정해준다. 
+        DECLARE
+                TYPE VA_TYPE IS VARRAY(5) OF VARCHAR2(10);
+                V_VA VA_TYPE;
+                V_CNT NUMBER :=0;
+      
+        BEGIN
+                V_VA := VA_TYPE('FIRST','SECOND','THIRD','','');
+                LOOP
+                        V_CNT:=V_CNT+1;
+                                IF V_CNT>5 THEN EXIT;
+                                END IF;
+                    
+                        DBMS_OUTPUT.PUT_LINE(V_CNT||'   '||V_VA(V_CNT));
+                END LOOP;
+        END;
+        /
+                
+                
+                
+        -- TABLE  자료형 배열
+        DECLARE
+                TYPE EMP_ID_TABLE_TYPE IS TABLE OF EMPLOYEE.EMP_ID%TYPE
+                INDEX BY BINARY_INTEGER;
+                EMP_ID_TABLE EMP_ID_TABLE_TYPE;
+                I       BINARY_INTEGER :=0;
+        BEGIN
+                FOR    K IN (SELECT EMP_ID FROM EMPLOYEE) LOOP
+                    I    :=I+1;
+                    EMP_ID_TABLE(I) :=K.EMP_ID;
+                END LOOP;
+                
+                FOR J IN 1..I LOOP
+                    DBMS_OUTPUT.PUT_LINE(EMP_ID_TABLE(J));
+                END LOOP;
+        END;
+        /
+                
+                
+                
+-- PL/SQL구문에서 SELECT문 사요하기
+-- PL/SQL 구문에서 SELECT 문을 사용하는 것은 조회한 결과를 변수에 저장하고 활용하기 위해서 사용
+
+
+-- PL/SQL 구문에서 SELECT 문을 사용할 때에는 반드는 INTO로 사용하여 대입하는 구문을 만들어줘야햔다. 
+
+
+        DECLARE 
+                EMP_ID EMPLOYEE.EMP_ID%TYPE;
+        BEGIN
+                SELECT EMP_ID
+                INTO EMP_ID
+                FROM EMPLOYEE
+                WHERE EMP_NAME = '방명수';
+        END;
+        /
+
+--PL/SQL 구문을 이용하여 INSERT문 처리하기
+--FUNCTION이나 프로시저로 이름으로 호출할 수 있다.
+-- 오라클 스케쥴러를 쓸때
+
+
+BEGIN
+    FOR K IN 1..10 LOOP
+        INSERT INTO MEMBER VALUES ('USER00'||K, 'USER00'||K, '유저공공'||K);
+         COMMIT; -- 안에서 커밋을 해줘야함
+   END LOOP;    
+END;
+/
+
+SELECT *
+FROM MEMBER;
+
+
+
+
+-- 1. 사원 번호를 입력받아서 받은 사원의 사원번호, 이름, 부서코드, 부서명을 출렬하기 각 컬럼별 변수를 생성
+    declare
+        type a is record(
+            
+            id employee.emp_id%type,
+            name employee.emp_name%type,
+            code employee.dept_code%type,
+            title department.dept_title%type
+        );
+        b a;
+        begin
+                select emp_id, emp_name, dept_code, dept_title
+                into b
+                from employee join department on (dept_code = dept_id)
+                where emp_id = '&emp_id';
+            
+            dbms_output.put_line(b.id||' '||b.name||' '||b.code||' '||b.title);
+        end;
+        /
+
+
+--2. 사원 번호를 입력 받아서 해당 사원의 정보(한 행)을 한 변수에 모두 입력 받아서 사번, 이름, 주민번호, 급여를 출력하여라
+    DECLARE 
+        A EMPLOYEE%ROWTYPE;
+    BEGIN 
+        SELECT *
+        INTO A
+        FROM EMPLOYEE
+        WHERE EMP_NAME = '&emp_name';
+    
+        DBMS_OUTPUT.PUT_LINE(A.EMP_ID||' '||A.EMP_NAME||' '||A.EMP_NO||' '||A.SALARY);
+    END;
+    /
+--3. EMPLOYEE테이블에서 사번 마지막 번호를 구한 뒤 +1한 사번에 사용자로부터 입력받은 이름, 주민번호, 전화번호, 직급코드(J5), 급여등급(S5)를 등록하는 PL/SQL을 작성하자
+
+

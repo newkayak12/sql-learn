@@ -425,7 +425,7 @@ FROM TRUNC_TEST;
     -- DDL (ALTER/DROP)
     
     -- 테이블을 수정할 수 있게
-    --ALTER는 꼭 테이블에 한한게 아니라 오브젝트 (*********************다시 찾아서 작성요망 ********************)
+    --ALTER는 꼭 테이블에 한한게 아니라 오브젝트 (TABLE/SEQUENCE/INDEX/TIRGGER/SYNONYM/USER)
     
     
     
