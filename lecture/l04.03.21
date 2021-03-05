@@ -814,11 +814,116 @@ FROM MEMBER;
         SELECT *
         INTO A
         FROM EMPLOYEE
-        WHERE EMP_NAME = '&emp_name';
+        WHERE EMP_id = '&emp_id';
     
         DBMS_OUTPUT.PUT_LINE(A.EMP_ID||' '||A.EMP_NAME||' '||A.EMP_NO||' '||A.SALARY);
     END;
     /
 --3. EMPLOYEE테이블에서 사번 마지막 번호를 구한 뒤 +1한 사번에 사용자로부터 입력받은 이름, 주민번호, 전화번호, 직급코드(J5), 급여등급(S5)를 등록하는 PL/SQL을 작성하자
 
+    Declare
+        no employee.emp_id%type;
+        name varchar2(20);
+        sno varchar2(80); 
+        phone number(20); 
+        code varchar2(10);
+        level varchar2(10) ;    
+        
+    begin
+       select max(emp_id)+1
+       into no
+        from employee;
+       name := '&name';
+       sno := '&sno';
+       phone := '&phone';
+       code := '&code';
+       level := '&level';
+       
+       
+       dbms_output.put_line( no||' '||name||' '||sno||' '||phone||' '||code||' '||level);
+       
+       
+       insert into employee(emp_id, emp_name, emp_no, phone, job_code, sal_level)
+       values (no, name, sno, phone, code, level);
+       commit
+    end;
+    /
+    
+    
+    
+    declare id employee.empid%type;
+    
+    begin 
+        select max(emp_id)
+        into id
+        from employee;
+        
+        insert into employee(emp_id, emp_name,  emp_no, phone, job_code, sal_level)
+        values( id+1, '&이름', '&주민번호', '&전화번호', '&직책코드', '&급여코드');
+        commit;
+    end;
+    /
+        
+        
+        SET SERVEROUTPUT ON;
+        --기본이 off
+        
+        
 
+    declare 
+            V_EMP_ID EMPLOYEE.EMP_ID%TYPE;
+    BEGIN
+            SELECT EMP_ID
+            INTO V_EMP_ID
+            FROM EMPLOYEE
+            WHERE EMP_ID = '&EMP_ID';
+            
+            CASE
+                    WHEN V_EMP_ID BETWEEN (0 AND 990000) THEN
+                    DBMS_OUTPUT.PUT_LINE('F');
+                    
+                    WHEN V_EMP_ID BETWEEN (1000000 AND 1990000) THEN
+                    DBMS_OUTPUT.PUT_LINE('E');
+            
+                    WHEN V_EMP_ID BETWEEN(2000000 AND 2990000) THEN
+                    DBMS_OUTPUT.PUT_LINE('D');
+                    
+                    WHEN V_EMP_ID BETWEEN(3000000 AND 3990000) THEN
+                    DBMS_OUTPUT.PUT_LINE('C');
+                    
+                    WHEN V_EMP_ID BETWEEN(4000000 AND 4990000) THEN
+                    DBMS_OUTPUT.PUT_LINE('B');
+                    
+                    ELSE
+                    DBMS_OUTPUT.PUT_LINE('A');
+                END CASE;
+        END;
+        /
+
+        declare
+            ids employee.emp_id%type;
+        begin
+            select emp_id
+            into ids
+            from employee
+            where emp_id = '&id';
+
+            CASE
+                when ids BETWEEN (0 and 990000) THEN
+                dbms_output.put_line('f');
+
+                when ids BETWEEN (1000000 and 1990000) THEN
+                dbms_output.put_line('E');
+
+                when ids BETWEEN (2000000 and 2990000) THEN
+                dbms_output.put_line('C');
+
+                when ids BETWEEN (3000000 and 3990000) THEN
+                dbms_output.put_line('B');
+
+                ELSE
+                    dbms_output.put_line('A');
+
+            end CASE;
+        end;
+        /

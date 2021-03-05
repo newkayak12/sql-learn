@@ -536,6 +536,11 @@ INSERT INTO TBL_USER_ALTER VALUES(1,'ADMIN','1234','관리자','관리', 'ADMIN@
  ALTER TABLE TBL_USER_ALTER
  RENAME CONSTRAINT SYS_C0016320 TO PK_TBL_USER_NO;
  
+ 
+ 
+ 
+ 
+ 
  --컬럼에 대한 타입을 변경하기!!!!!!!!!!
  --MODIFY 쿼리문을 사용
  ALTER TABLE TBL_USER_ALTER
@@ -654,6 +659,21 @@ FROM TBL_USER_ALTER;
     
     SELECT * 
     FROM EMP_DEP_COPY;
+    
+    
+    -----------------------------------------------
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     
     
     

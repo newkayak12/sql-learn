@@ -1,0 +1,599 @@
+-- PL/SQL조건문
+-- 사용법 실행문에 사용
+-- IF 조건  THEN 조건이 TRUE일 때 실행하는 로직  END IF문
+
+SET SERVEROUTPUT ON;
+
+
+    BEGIN
+            IF '&이름' = '김태희'   THEN 
+                DBMS_OUTPUT.PUT_LINE('상현이형이 괴롭혀요!');
+            END IF;
+    END;
+    /
+    --형식만 안다면 ... 쓸 수 있지
+    
+    
+    DECLARE
+            V_EMP_NAME EMPLOYEE.EMP_NAME%TYPE;
+    BEGIN 
+            SELECT EMP_NAME
+            INTO V_EMP_NAME
+            FROM EMPLOYEE
+            WHERE EMP_ID = '&사번';
+            
+                IF V_EMP_NAME = '선동일' THEN
+                     DBMS_OUTPUT.PUT_LINE('난 대표!');
+                END IF;
+    END;
+    /
+    
+    
+    --이렇게 사용할 수 있따.
+    
+    
+    
+    
+    --IF ~  THEN ~  ELSE ~  END IF;
+    
+    DECLARE 
+        V_EMP_NAME  EMPLOYEE.EMP_NAME%TYPE;
+    BEGIN
+    
+        SELECT EMP_NAME 
+        INTO V_EMP_NAME
+        FROM EMPLOYEE
+        WHERE EMP_ID = '&사번';
+        
+        IF V_EMP_NAME = '선동일' 
+            THEN DBMS_OUTPUT.PUT_LINE ('대표');
+        
+        ELSE 
+                    DBMS_OUTPUT.PUT_LINE ('사원');
+        END IF;
+    END;
+    /
+        
+ 
+ 
+   -- IF ~ THEN ~ ELSE IF ~ THEN ~ ELSE ~ END IF
+   
+   
+    DECLARE 
+        V_JOB_CDE  EMPLOYEE.JOB_CODE%TYPE;
+        
+    BEGIN
+    
+        SELECT JOB_CODE
+        INTO V_JOB_CODE
+        FROM EMPLOYEE
+        WHERE EMP_ID = '&사번';
+        
+        IF V_JOB_CODE = 'J1'THEN
+             DBMS_OUTPUT.PUT_LINE ('대표');
+        
+        ELSE IF V_JOB_CODE = 'J2' THEN 
+             DBMS_OUTPUT.PUT_LINE ('임원');
+            
+        ELSE DBMS_OUTPUT.PUT_LINE ('사원');
+                    
+        END IF;
+    END;
+    /
+        
+        
+    -- CASE문 (SWITCH와 비슷)
+    ------------
+    DECLARE 
+        INPUTVALUE NUMBER;
+    
+    BEGIN
+        INPUTVALUE := '&수 입력';
+        
+        CASE INPUTVALUE
+                WHEN 1 THEN
+                     DBMS_OUTPUT.PUT_LINE(INPUTVALUE||'를 입력함 1은 첫 번째');
+                WHEN 2 THEN      
+                     DBMS_OUTPUT.PUT_LINE(INPUTVALUE||'를 입력함 2은 두 번째');
+                WHEN 3 THEN      
+                     DBMS_OUTPUT.PUT_LINE(INPUTVALUE||'를 입력함 3은 세 번째');        
+                ELSE 
+                     DBMS_OUTPUT.PUT_LINE(INPUTVALUE||'를 입력함 이 이상은 몰랑');        
+        END CASE;
+        
+    END;
+    /
+                
+                DECLARE 
+                INP NUMBER;
+                BEGIN INP := '&SU';
+                CASE INP
+                WHEN 1 THEN
+                    DBMS_OUTPUT.PUT_LINE(INP);
+                WHEN 2 THEN
+                    DBMS_OUTPUT.PUT_LINE(INP);
+                WHEN 3 THEN
+                    DBMS_OUTPUT.PUT_LINE(INP);
+                ELSE 
+                    DBMS_OUTPUT.PUT_LINE(INP);
+                END CASE;
+                END;
+                /
+                    
+                
+                
+    DECLARE 
+        V_SALARY EMPLOYEE.SALARY%TYPE;
+    BEGIN
+        SELECT SALARY
+        INTO V_SALARY
+        FROM EMPLOYEE
+        WHERE EMP_ID = '&사번';
+        
+        
+        CASE
+            WHEN V_SALARY > 4000000 THEN
+                DBMS_OUTPUT.PUT_LINE('고액 연봉자');
+            WHEN V_SALARY > 2000000 THEN
+                DBMS_OUTPUT.PUT_LINE('연봉자');
+            ELSE 
+                DBMS_OUTPUT.PUT_LINE('슬프다');
+        END CASE;
+    END;
+    /
+    
+    
+    
+    
+    --반복문 (LOOP)
+    -- LOOP ~ 실행할 구문 ~ END LOOP;  > 기본이 무한 루프
+    -- 반복문을 빠져나오는 예약어 > EXIT
+    
+    DECLARE
+        N NUMBER:= 1;
+    BEGIN
+        LOOP 
+        DBMS_OUTPUT.PUT_LINE(FLOOR(DBMS_RANDOM.VALUE(1,10)));
+            DBMS_OUTPUT.PUT_LINE(N);
+            N:=N+1;
+            
+--            IF N > 10    THEN
+--                EXIT;
+--            END IF;
+
+            -- 위 또는 아래 (같은)
+            
+            EXIT WHEN N>10;
+        END LOOP;
+    END;
+    /
+    
+    
+    
+    --랜덤 값을 뽑아내자 (나중에 DUMMY DATA 만들때 사용해라)
+    DBMS_OUTPUT.PUT_LINE(DBMS_RANDOM.VALUE(1,10));
+    
+-- WHILE LOOP
+
+
+-- WHILE 조건식 LOOP
+-- 실행 구문
+-- END LOOP;
+
+--조건이 FALSE가 되면 EXIT
+
+
+
+--사번을 입력 받은 후 급여에 따라 등급을 나누어 출력하도록 하시오 
+--그때 출력 값은 사번,이름,급여,급여등급을 출력하시오 (CASE 문으로 출력하시오)
+--0만원 ~ 99만원 : F
+--100만원 ~ 199만원 : E
+--200만원 ~ 299만원 : D
+--300만원 ~ 399만원 : C
+--400만원 ~ 499만원 : B
+--500만원 이상(그외) : A
+
+
+
+
+    DECLARE 
+            V_EMP_ID EMPLOYEE.EMP_ID%TYPE;
+    BEGIN
+            SELECT EMP_ID
+            INTO V_EMP_ID
+            FROM EMPLOYEE
+            WHERE EMP_ID = '&EMP_ID';
+            
+            CASE
+                    WHEN V_EMP_ID BETWEEN (0 AND 990000) THEN
+                    DBMS_OUTPUT.PUT_LINE('F');
+                
+                    WHEN V_EMP_ID BETWEEN (1000000 AND 1990000) THEN
+                    DBMS_OUTPUT.PUT_LINE('E');
+            
+                    WHEN V_EMP_ID BETWEEN(2000000 AND 2990000) THEN
+                    DBMS_OUTPUT.PUT_LINE('D');
+                    
+                    WHEN V_EMP_ID BETWEEN(3000000 AND 3990000) THEN
+                    DBMS_OUTPUT.PUT_LINE('C');
+                    
+                    WHEN V_EMP_ID BETWEEN(4000000 AND 4990000) THEN
+                    DBMS_OUTPUT.PUT_LINE('B');
+                    
+                    ELSE
+                    DBMS_OUTPUT.PUT_LINE('A');
+                END CASE;
+        END;
+        /
+        
+        
+DECLARE
+            IDS EMPLOYEE.EMP_ID%TYPE;
+        BEGIN
+            SELECT EMP_ID
+            INTO IDS
+            FROM EMPLOYEE
+            WHERE EMP_ID = '&ID';
+
+            CASE
+                WHEN IDS BETWEEN 0 AND 990000 THEN
+                DBMS_OUTPUT.PUT_LINE(IDS||' '||'F');
+
+                WHEN IDS BETWEEN 1000000 AND 1990000 THEN
+                DBMS_OUTPUT.PUT_LINE(IDS||' '||'E');
+
+                WHEN IDS BETWEEN 2000000 AND 2990000 THEN
+                DBMS_OUTPUT.PUT_LINE(IDS||' '||'C');
+
+                WHEN IDS BETWEEN 3000000 AND 3990000 THEN
+                DBMS_OUTPUT.PUT_LINE(IDS||' '||'B');
+
+                ELSE
+                    DBMS_OUTPUT.PUT_LINE(IDS||' '||'A');
+
+            END CASE;
+        END;
+        /
+        
+        -----------안풀림
+        
+        -- FOR LOOP
+        -- FOR EACH와 비슷
+        
+        -- FOR 변수 IN  범위 LOOP
+        --          실행 구문
+        --  END LOOP;
+        
+        BEGIN
+            FOR I IN 1..10 LOOP
+                DBMS_OUTPUT.PUT_LINE(I);
+            END LOOP;
+        END;
+        /
+        
+        
+        BEGIN
+            FOR I IN REVERSE 1..10 LOOP
+                DBMS_OUTPUT.PUT_LINE(I);
+            END LOOP;
+        END;
+        /
+        
+    -- 루핑해서 10명 출력
+    
+        DECLARE
+            E EMPLOYEE%ROWTYPE;
+            N NUMBER:= 200;
+        BEGIN
+          
+        
+           
+            FOR I IN 1..10 LOOP
+            
+                SELECT *
+                INTO E
+                FROM EMPLOYEE
+                WHERE EMP_ID = N;
+                N:=N+1;
+                
+                DBMS_OUTPUT.PUT_LINE(E.EMP_ID||' '||E.EMP_NAME||' '||E.SALARY);
+                 
+                 
+            END LOOP;
+        END;
+        /
+        
+        
+        
+        --PROCEDURE : PL/SQL구문을 저장해서 이용하게 하는 객체
+        CREATE TABLE PRO_TEST
+        AS SELECT * FROM EMPLOYEE;
+        SELECT * FROM PRO_TEST;
+        
+        
+--        CREATE PROCEDURE 프로시저 이름
+--        IS
+--        (변수)
+--        BEGIN
+--        
+--        로직
+--        
+--        END;
+--        /
+        
+        --프로시저 만들기
+        
+        CREATE PROCEDURE DEL_DATA
+        IS
+        --지역변수 선언
+        BEGIN
+            DELETE FROM PRO_TEST;
+            COMMIT;
+        END;
+        /
+        
+        --생성된 프로시저 조회
+        
+        SELECT *
+        FROM USER_PROCEDURES;
+        
+        --생성된 프로시저 실행
+        
+        EXECUTE DEL_DATA;
+        
+        SELECT *
+        FROM PRO_TEST;
+        
+        
+        --프로시져에도 매개변수를 선언하는 것이 가능하다.
+        
+        -- IN 매개변수 : 프로시저 실행시 필요한 값을 받는 변수
+        
+        -- OUT 매개변수 : 호출하는 곳으로 되돌려 주는 변수(결과값 > 프로시저는 반환형이 없다. 대신 OUT변수로 특정한 곳에 값을 넣어주는 식)
+        
+        
+        
+        
+        CREATE OR REPLACE PROCEDURE PRO_SELECT_EMP(V_EMP_ID IN EMPLOYEE.EMP_ID%TYPE, 
+                                                                V_EMP_NAME OUT EMPLOYEE.EMP_NAME%TYPE, 
+                                                                V_SALARY OUT EMPLOYEE.SALARY%TYPE,
+                                                                V_BONUS OUT EMPLOYEE.BONUS%TYPE)
+                                                                
+        IS
+        BEGIN
+            SELECT EMP_NAME, SALARY, BONUS
+            INTO V_EMP_NAME, V_SALARY, V_BONUS
+            FROM EMPLOYEE
+            WHERE EMP_ID = V_EMP_ID;
+        END;
+        /
+        
+        -- 왜 오타를 내는거지??
+        
+        --매개 변수가 있는 프로시져 실행하기
+        
+        VAR EMP_NAME VARCHAR2(20);
+        VAR SALARY NUMBER;
+        VAR BONUS NUMBER;
+        
+        EXEC PRO_SELECT_EMP(200,:EMP_NAME, :SALARY, :BONUS);
+        -- : 바인드
+        
+        PRINT EMP_NAME;
+        PRINT SALARY;
+        PRINT BONUS;
+        
+        --더 많이 보고 많이 풀어야 겠다 당분간 자바보다는 이걸 봐야겠는데..?
+        -- 강의 들으면서...
+        
+        
+        --FUNCTION만들기
+        -- 반환형이 있음
+        
+        
+        CREATE OR REPLACE FUNCTION  MYFUNC(V_STR VARCHAR2)
+        RETURN VARCHAR2
+        
+        IS
+            RESULT VARCHAR2(1000);
+        BEGIN
+            DBMS_OUTPUT.PUT_LINE(V_STR);
+            RETURN '*'||V_STR;
+        END;
+        /
+        
+        
+    --리턴값이 있으니까 단일행 함수 같이 SELECT 안에서 사용할 수 있다.
+    
+    SELECT MYFUNC('유병승')
+    FROM DUAL;
+    
+    
+    
+    
+    --EMP ID 를 전달받아 연봉을 계산해서 출력햊두는 미;ㅁ자어린아
+    CREATE OR REPLACE FUNCTION SAL(ESAL EMPLOYEE.EMP_ID%TYPE)
+    RETURN NUMBER
+    
+    IS
+   SALA NUMBER;
+    BEGIN
+        SELECT SALARY*(1+NVL(BONUS,0))*12
+        INTO SALA
+        FROM EMPLOYEE
+        WHERE EMP_ID = ESAL;
+        
+        RETURN SALA;
+    END;
+    /
+        
+    SELECT SAL(200)
+    FROM EMPLOYEE
+    WHERE EMP_ID = 200;
+    
+    
+    --TRIGGER
+    -- 어떠한 이슈가 자동으로 다른 작업을 촉발시킴
+    
+    --로그를 남기거나하는...
+    --테이블 뷰가 INSERT, UPDATE, DELETE등의 DML(트렌젝션 작업단위에 포함되는) 작업을 하면 알아서 실행하는 
+    
+    
+    --TRIGGER  : 트리거는 실행하는지 체크하기 어려워서 ....SI는 안쓴다고?
+    
+    CREATE OR REPLACE TRIGGER TGR_01
+    AFTER INSERT
+    ON EMPLOYEE
+       
+       FOR EACH ROW   -- 맞네 이거 써줘야 ROW마다 반응하지
+       
+    BEGIN 
+        
+--        DBMS_OUTPUT.PUT_LINE(:NEW.EMP_ID||:NEW.EMP_NAME);
+            DBMS_OUTPUT.PUT_LINE(:OLD.EMP_ID||:OLD.EMP_NAME);
+        DBMS_OUTPUT.PUT_LINE('신입받아라!'||SYSDATE);
+    END;
+    /
+    
+    
+    INSERT INTO EMPLOYEE VALUES (907, '양세영', '690512-1151432', 'GIL_SJ@KH.OR.KR', '01035464455', 'D5', 'J3','S5', 3000000, 0.1, 200, SYSDATE, NULL, DEFAULT);
+        
+        
+        --트리거 속성
+--        1. 실행 시점 : BEFORE/AFTER로 나뉜다. 
+--        2. 실행을 시키는 명령 : INSERT/UPDATE/DELETE
+--        3. FOR EACH ROW : 각 행마다 TRIGGER를 발동  > 안쓰면 한 테이블에 작업이 다 끝나고 실행
+--        4. 기존 값이나 신규 값을 가져오기
+--                OLD.~/ NEW.~ : OLD > 수정하기 전의 값/ NEW > 수정/추가되는 값
+--                 INSERT NEW만 / UPDATE  OLD/NEW  / DELETE OLD만
+
+
+
+
+
+    CREATE OR REPLACE TRIGGER TRG_02
+    AFTER UPDATE
+    ON EMPLOYEE
+    FOR EACH ROW
+    BEGIN
+        
+        DBMS_OUTPUT.PUT_LINE(:OLD.EMP_NAME);
+        DBMS_OUTPUT.PUT_LINE(:OLD.SALARY);
+        DBMS_OUTPUT.PUT_LINE(:NEW.EMP_NAME);
+        DBMS_OUTPUT.PUT_LINE(:NEW.SALARY);
+    END;
+    /
+        
+UPDATE EMPLOYEE SET EMP_NAME = '박찬혁' , SALARY = 200 WHERE EMP_ID = 906;
+
+SELECT *
+FROM EMPLOYEE;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+--재고관리 테이블에 트리거 적용하기
+
+    CREATE TABLE PRODUCT(
+    
+        PCODE NUMBER PRIMARY KEY,
+        PNAME VARCHAR2(30),
+        BRAND VARCHAR2(30),
+        PRICE NUMBER, 
+        STOCK NUMBER DEFAULT 0
+    
+    );
+    
+    --상품에 대한 입출고을 관리하는 테이블
+    CREATE TABLE PRODUCT_IO(
+        
+        IOCODE NUMBER PRIMARY KEY,
+        PCODE NUMBER CONSTRAINT FK_PIO_PCODE REFERENCES  PRODUCT(PCODE),
+        PDATE DATE,
+        AMOUNT NUMBER,
+        STATUS VARCHAR2(10) CHECK (STATUS IN ('입고', '출고'))
+                
+    );
+
+
+
+    --IO에 입고면 PRODUCT의 STOCK에서 더하고 반대면 빼주고 (자동으로)
+    DROP TABLE PRODUCT_IO;
+    
+    
+    CREATE SEQUENCE SEQ_PCODE;
+    CREATE SEQUENCE SEQ_IOCODE;
+    
+    SELECT * FROM PRODUCT;
+    SELECT * FROM PRODUCT_IO;
+    
+    
+    
+    INSERT INTO PRODUCT VALUES (SEQ_PCODE.NEXTVAL, '갤럭시20', '삼성', 1200000, DEFAULT);
+    INSERT INTO PRODUCT VALUES (SEQ_PCODE.NEXTVAL, '애플 미니홈', '애플', 120000, DEFAULT);
+    INSERT INTO PRODUCT VALUES (SEQ_PCODE.NEXTVAL, 'E-CLASS', '벤츠', 12000000,DEFAULT);
+    
+    
+    CREATE TRIGGER PRODUCT_TRG
+    AFTER INSERT
+    ON PRODUCT_IO
+    
+    FOR EACH ROW
+    
+    BEGIN 
+    
+        IF :NEW.STATUS = '입고' THEN
+            UPDATE PRODUCT SET STOCK  = STOCK+:NEW.AMOUNT WHERE PCODE = :NEW.PCODE;
+        
+        ELSIF :NEW.STATUS = '출고' THEN
+            UPDATE PRODUCT SET STOCK = STOCK-:NEW.AMOUNT WHERE PCODE= :NEW.PCODE;
+            
+        END IF;
+        
+    END;
+    /
+    
+    
+    drop trigger product_trg;
+    drop sequence seq_pcode;
+    drop sequence seq_iocode;
+    
+    --update는 히스토리 남길 때 사용
+    delete product_io;
+    delete product;
+ 
+    
+    select *
+    from product;
+   
+    select p.pname,i.*
+    from product_io i
+                join product p on i.pcode = p.pcode;
+    
+    
+    select *
+    from product_io;
+    
+    insert into product_io values(seq_iocode.nextval, 1,sysdate, 2, '입고');
+    insert into product_io values(seq_iocode.nextval, 2,sysdate, 5, '입고');
+    insert into product_io values(seq_iocode.nextval, 3,sysdate, 3, '입고');
+    
+update product_io set amount= 1, status ='입고' where pcode =3;
+
+
+--히스토리로 누가 언제 어떤 아이디로 어떻게 수정했는지 log를 남기면 좋지... 그래야 ...ㅋㅋ
