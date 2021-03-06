@@ -1,0 +1,48 @@
+--SQL_DDL
+--10
+    
+    create view vm_학생일반정보
+    as 
+    (   select student_no, student_name, student_address
+         from tb_student);
+         
+         select *
+         from vm_학생일반정보;
+     
+     
+--11
+    create or replace view vm_지도면담
+    as
+    (select s.student_name,  d.department_name, p.professor_name
+      from tb_student s
+                            join tb_department d on (s.department_no = d.department_no)
+                            left join  tb_professor p on (s.coach_professor_no = p.professor_no)
+      
+      
+    )
+    order by d.department_name;                        
+    
+  
+    
+    select *
+    from vm_지도면담;
+    
+    
+    
+    
+    --15 
+--수강신청 기간만 되면 특정 인기 과목에 몰리낟.
+--최근 3년을 기준으로 수강인원이 가장 많았던 3과목
+--과목 번호/ 과목이름 누적수강생수
+
+
+select *
+from(
+            select class_no as "과목번호" , class_name as "과목이름", count( class_no) "누적 수강생수"
+            from tb_class c
+                                    join tb_grade using (class_no)
+            where substr(term_no,1,4)>=2005 
+            group by class_no, class_name
+            order by 3 desc
+        )
+where rownum<=3;        

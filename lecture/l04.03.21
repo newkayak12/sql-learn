@@ -332,6 +332,9 @@ CREATE OR REPLACE VIEW V_EMP_SALARY
 
 
 
+
+
+
 --SQUENCE : PK로 많이 사용합니다.!
 -- : 순차적으로 정수 값을 자동으로 생성하는 
 --
@@ -408,7 +411,7 @@ FROM DUAL;
 
 
 --NO CYCLE
-
+           
 CREATE SEQUENCE SEQ_OPTION3
 START WITH 60
 INCREMENT BY 6
@@ -532,6 +535,12 @@ FROM EMPLOYEE
 WHERE EMP_NAME = '박나라' AND DEPT_CODE = 'D5';
 
 
+
+
+
+
+
+
 --PL/SQL : PROCEDURAL LANGUAGE EXTENSION TO SQL (웹/ 어플은 잘 안쓴다??) > DB개발자는 많이쓰고..
 
 --SQL을 조금더 프로그램스럽게 (절차식으로)
@@ -563,7 +572,7 @@ WHERE EMP_NAME = '박나라' AND DEPT_CODE = 'D5';
 -- 유형이 따로 나뉨 
 
 
---  익명 블록    ==> 이름이 없어서 재호출이 가능
+--  익명 블록    ==> 이름이 없어서 재호출이 불가능
 
 
 -- 프로시저
@@ -585,6 +594,7 @@ WHERE EMP_NAME = '박나라' AND DEPT_CODE = 'D5';
 --(끝나는 지점에 꼭 '/'를 넣어야)
 
 SET SERVEROUTPUT ON;
+set serveroutput off;
 
 
 BEGIN
@@ -636,7 +646,7 @@ END;
 -- 기본 자료형 : NUMBER, VARCHAR2, DATE, BOOLEAN, BINARY_INTEGER
 -- 복합 자료형 : RECORD, CURSOR, COLLECION 
 
--- 종료 : 일반변수, 참조형 변수(테이블의 컬럼에 지정된 자료형을 가져와서 사용)
+-- 종료?? : 일반변수, 참조형 변수(테이블의 컬럼에 지정된 자료형을 가져와서 사용)  --------------------***********************
 
 -- 참조형 변수
 -- 1. %TYPE : 지정한 테이블의 컬럼의 자료형을 참조하는 레퍼런스 변수
@@ -692,18 +702,8 @@ END;
                 END;
                 /
                 -------------------------------------------------------------------------
-                DECLARE
-                TYPE MY_RECORD IS RECORD (
-                    ID EMPLOYEE.EMP_ID%TYPE,
-                    NAME EMPLOYEE.EMP_NAME%TYPE,
-                    TITLE DEPARTMENT.DEPT_TITLE%TYPE
-                    );
-                    
-                    EMP_RECORD MY_RECORD;
-                    
-                BEGIN
-                    SLEECT EMP_ID, EMP_NAME, DEPT_TITLE
-                    INTO 
+               
+               SET SERVEROUTPUT ON;
                 
                 
 
@@ -711,13 +711,21 @@ END;
 --컬렉션 자료형
 -- 컬렉션은 자바의 배열과 같은 형태를 가진다. 
 -- 인덱스 값도 설정해준다. 
+        
+        
+        
+        
+        
+        
+        
         DECLARE
+        
                 TYPE VA_TYPE IS VARRAY(5) OF VARCHAR2(10);
                 V_VA VA_TYPE;
                 V_CNT NUMBER :=0;
       
         BEGIN
-                V_VA := VA_TYPE('FIRST','SECOND','THIRD','','');
+                V_VA := VA_TYPE('FIRST','SECOND','THIRD',' ',' ');
                 LOOP
                         V_CNT:=V_CNT+1;
                                 IF V_CNT>5 THEN EXIT;
