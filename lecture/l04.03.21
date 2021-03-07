@@ -851,11 +851,11 @@ FROM MEMBER;
        dbms_output.put_line( no||' '||name||' '||sno||' '||phone||' '||code||' '||level);
        
        
-       insert into employee(emp_id, emp_name, emp_no, phone, job_code, sal_level)
-       values (no, name, sno, phone, code, level);
-       commit
+       
     end;
     /
+    
+    set serveroutput on;
     
     
     

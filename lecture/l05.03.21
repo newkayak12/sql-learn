@@ -56,7 +56,7 @@ SET SERVEROUTPUT ON;
         
  
  
-   -- IF ~ THEN ~ ELSE IF ~ THEN ~ ELSE ~ END IF
+   -- IF ~ THEN ~ ELSIF ~ THEN ~ ELSE ~ END IF
    
    
     DECLARE 
@@ -470,12 +470,16 @@ DECLARE
 
 
 
-
+ select *
+ from employee;
+ 
+ 
     CREATE OR REPLACE TRIGGER TRG_02
     AFTER UPDATE
     ON EMPLOYEE
     FOR EACH ROW
     BEGIN
+        
         
         DBMS_OUTPUT.PUT_LINE(:OLD.EMP_NAME);
         DBMS_OUTPUT.PUT_LINE(:OLD.SALARY);

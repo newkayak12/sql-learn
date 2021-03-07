@@ -1,34 +1,142 @@
 --SQL_DDL
+--1
+CREATE  TABLE  TB_CATEGORY(
+
+    NAME VARCHAR2 (10),
+    USE_YN CHAR (1) DEFAULT 'Y' NOT NULL
+
+
+);
+
+
+--2
+
+CREATE TABLE TB_CLASS_TYPE(
+    NO VARCHAR2 (5) PRIMARY KEY,
+    NAME VARCHAR2 (10)
+);
+
+
+--3
+ALTER TABLE TB_CATEGORY 
+ADD PRIMARY KEY (NAME);
+
+--4
+ALTER TABLE TB_CLASS_TYPE
+MODIFY NAME CONSTRAINT TB_CLASS_TYPE_NAME_NN  NOT NULL;
+
+
+--5
+ALTER TABLE TB_CLASS_TYPE
+MODIFY NO VARCHAR2(10)
+MODIFY NAME VARCHAR2 (20);
+
+ALTER TABLE TB_CATEGORY
+MODIFY NAME VARCHAR2 (20);
+
+
+--6 
+ALTER TABLE TB_CLASS_TYPE
+RENAME COLUMN NO TO CLASS_TYPE_NO;
+
+ALTER TABLE TB_CLASS_TYPE
+RENAME COLUMN NAME TO CLASS_TYPE_NAME;
+
+ALTER TABLE TB_CATEGORY
+RENAME COLUMN NAME TO CATEGORY_NAME;
+
+
+--7
+ALTER TABLE TB_CATEGORY
+RENAME CONSTRAINT SYS_C0016411 TO PK_USE_YN;
+
+ALTER TABLE TB_CLASS_TYPE
+RENAME CONSTRAINT SYS_C0016410 TO PK_CLASS_TYPE_NO;
+
+
+
+--8 
+
+INSERT INTO TB_CATEGORY VALUES ('공학',  'Y');
+INSERT INTO TB_CATEGORY VALUES ('자연과학',  'Y');
+INSERT INTO TB_CATEGORY VALUES ('의학',  'Y');
+INSERT INTO TB_CATEGORY VALUES ('예체능',  'Y');
+INSERT INTO TB_CATEGORY VALUES ('인문사회',  'Y');
+COMMIT;
+
+
+--9
+ALTER TABLE TB_DEPARTMENT
+ADD CONSTRAINT FK_DEPARTMENT_CATEGORY FOREIGN KEY( CATEGORY)  REFERENCES TB_CATEGORY(CATEGORY_NAME);
+
+
+ALTER TABLE TB_CATEGORY
+ADD CONSTRAINT UQ_DEPARTMENT UNIQUE (CATEGORY_NAME);
+
+
+
+
+
+
+
 --10
     
-    create view vm_학생일반정보
-    as 
-    (   select student_no, student_name, student_address
-         from tb_student);
+    CREATE VIEW VM_학생일반정보
+    AS 
+    (   SELECT STUDENT_NO, STUDENT_NAME, STUDENT_ADDRESS
+         FROM TB_STUDENT);
          
-         select *
-         from vm_학생일반정보;
+         SELECT *
+         FROM VM_학생일반정보;
      
      
 --11
-    create or replace view vm_지도면담
-    as
-    (select s.student_name,  d.department_name, p.professor_name
-      from tb_student s
-                            join tb_department d on (s.department_no = d.department_no)
-                            left join  tb_professor p on (s.coach_professor_no = p.professor_no)
+    CREATE OR REPLACE VIEW VM_지도면담
+    AS
+    (SELECT S.STUDENT_NAME,  D.DEPARTMENT_NAME, P.PROFESSOR_NAME
+      FROM TB_STUDENT S
+                            JOIN TB_DEPARTMENT D ON (S.DEPARTMENT_NO = D.DEPARTMENT_NO)
+                            LEFT JOIN  TB_PROFESSOR P ON (S.COACH_PROFESSOR_NO = P.PROFESSOR_NO)
       
       
     )
-    order by d.department_name;                        
+    ORDER BY D.DEPARTMENT_NAME;                        
     
   
     
-    select *
-    from vm_지도면담;
+    SELECT *
+    FROM VM_지도면담;
     
+    --12
     
+    CREATE VIEW VW_학과별학생수
+    AS
+    SELECT DEPARTMENT_NAME, (SELECT COUNT(STUDENT_NO) FROM TB_STUDENT  S WHERE (S.DEPARTMENT_NO = D.DEPARTMENT_NO)) AS "STUDENT_COUNT"
+    FROM TB_DEPARTMENT D ;
     
+    SELECT *
+    FROM VW_학과별학생수;
+    
+    --13 
+    SELECT *
+    FROM VM_학생일반정보;
+    
+   UPDATE VM_학생일반정보
+   SET STUDENT_NAME = '김상현' 
+   WHERE STUDENT_NO = 'A213046';
+   
+   --14
+   CREATE VIEW   VM_학생일반정보2
+    AS 
+    (   SELECT STUDENT_NO, STUDENT_NAME, STUDENT_ADDRESS
+         FROM TB_STUDENT
+         )
+         WITH CHECK OPTION ;
+         
+         SELECT *
+         FROM VM_학생일반정보2
+         
+         ;
     
     --15 
 --수강신청 기간만 되면 특정 인기 과목에 몰리낟.
@@ -36,13 +144,153 @@
 --과목 번호/ 과목이름 누적수강생수
 
 
-select *
-from(
-            select class_no as "과목번호" , class_name as "과목이름", count( class_no) "누적 수강생수"
-            from tb_class c
-                                    join tb_grade using (class_no)
-            where substr(term_no,1,4)>=2005 
-            group by class_no, class_name
-            order by 3 desc
+SELECT *
+FROM(
+            SELECT CLASS_NO AS "과목번호" , CLASS_NAME AS "과목이름", COUNT( CLASS_NO) "누적 수강생수"
+            FROM TB_CLASS C
+                                    JOIN TB_GRADE USING (CLASS_NO)
+            WHERE SUBSTR(TERM_NO,1,4)>=2005 
+            GROUP BY CLASS_NO, CLASS_NAME
+            ORDER BY 3 DESC
         )
-where rownum<=3;        
+WHERE ROWNUM<=3;        
+
+
+
+
+--SQL05_DML
+--01
+SELECT *
+FROM TB_CLASS_TYPE;
+
+INSERT INTO TB_CLASS_TYPE VALUES(01, '전공필수');
+INSERT INTO TB_CLASS_TYPE VALUES(02, '전공선택');
+INSERT INTO TB_CLASS_TYPE VALUES(03, '교양필수');
+INSERT INTO TB_CLASS_TYPE VALUES(04, '교양선택');
+INSERT INTO TB_CLASS_TYPE VALUES(05, '논문지도');
+
+--02
+CREATE TABLE TB_학생일반정보
+AS (
+        SELECT STUDENT_NO, STUDENT_NAME, STUDENT_SSN
+        FROM TB_STUDENT
+    );    
+    
+SELECT *
+FROM TB_학생일반정보;
+
+--03
+
+CREATE TABLE TB_국어국문학과
+AS (
+        SELECT S.STUDENT_NO, S.STUDENT_NAME, '19'||SUBSTR(S.STUDENT_SSN, 1,6) AS "출생년도", 
+                (SELECT PROFESSOR_NAME 
+                    FROM TB_PROFESSOR P
+                    WHERE P.PROFESSOR_NO = S.COACH_PROFESSOR_NO ) AS "교수이름"
+        FROM TB_STUDENT S);                                    
+
+
+SELECT *
+FROM TB_국어국문학과;
+
+--04
+UPDATE  TB_DEPARTMENT
+SET CAPACITY = FLOOR( CAPACITY*(1.1));
+
+ ROLLBACK;
+ 
+SELECT *
+FROM TB_DEPARTMENT;
+
+
+--05 
+UPDATE TB_STUDENT
+SET STUDENT_ADDRESS = '서울시 종로구 승인동 181-21'
+WHERE STUDENT_NO = 'A413042';
+
+SELECT *
+FROM TB_STUDENT
+WHERE STUDENT_NO = 'A413042';
+
+--6
+UPDATE TB_STUDENT
+SET STUDENT_SSN = SUBSTR(STUDENT_SSN, 1,6);
+
+SELECT *
+FROM TB_STUDENT;
+
+
+--7
+UPDATE TB_GRADE G
+SET POINT =3.5
+WHERE TERM_NO = '200501' 
+AND
+(SELECT CLASS_NAME
+    FROM TB_CLASS C
+    WHERE (G.CLASS_NO =  C.CLASS_NO))  = '피부생리학'
+
+AND
+
+(SELECT STUDENT_NAME
+    FROM TB_STUDENT S
+    WHERE (S.STUDENT_NO = G.STUDENT_NO))  = '김명훈';
+
+select *
+from tb_grade
+where term_no = '200501';
+
+SELECT *
+FROM TB_GRADE G
+WHERE TERM_NO = '200501' 
+AND
+(SELECT CLASS_NAME
+    FROM TB_CLASS C
+    WHERE (G.CLASS_NO =  C.CLASS_NO))  = '피부생리학'
+
+AND
+
+(SELECT STUDENT_NAME
+    FROM TB_STUDENT S
+    WHERE (S.STUDENT_NO = G.STUDENT_NO))  = '김명훈';
+
+SELECT *
+FROM TB_CLASS
+WHERE CLASS_NAME = '피부생리학';
+ 
+ SELECT *
+ FROM TB_STUDENT
+ WHERE STUDENT_NAME = '김명훈';
+ 
+
+SELECT *
+FROM TB_GRADE
+WHERE STUDENT_NO IN ('A331092' , 'A331101') AND TERM_NO = '200501';
+
+
+--8 
+
+select *
+from tb_grade g
+where (
+select absence_yn
+from tb_student s
+where g.student_no = s.student_no) = 'Y'
+;
+
+select *
+from tb_student
+where absence_yn = 'Y';
+
+delete tb_grade g
+where (
+select absence_yn
+from tb_student s
+where g.student_no = s.student_no) = 'Y';
+
+rollback;
+
+--
+--select *
+--from tb_student
+--                    join tb_grade using (student_no)
+--where absence_yn   = 'Y';
