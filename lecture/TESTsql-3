@@ -1,0 +1,15 @@
+ create table test_T (
+ 
+    name2 varchar2 (30),
+    id2 varchar2 (30),
+    
+    constraint hello unique (name2),
+    CONSTRINT HI FOREIGN KEY( NAME2)  REFERENCES TEST_UNI(NAME)
+    
+    
+    );
+    
+    create table test_uni(
+        
+            name varchar2 (30) unique
+    );        

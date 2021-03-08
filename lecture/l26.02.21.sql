@@ -118,7 +118,7 @@ INSERT INTO TBL_CONS_N VALUES(1,'USER01', 'USER01', '김상현', '여', '010-123
 
 
 --NOT NULL제약 조건은 컬럼 레벨에서만 선언이 가능하다. *************************
--- 컬럼명 타입(킬이)  NOT NULL,
+-- 컬럼명 타입(길이)  NOT NULL,
 
 DROP TABLE TBL_CONS_NN;
 --테이블 명은 중복이 있으면 안된다.
@@ -254,6 +254,7 @@ CREATE TABLE TBL_CONS_UQ3(
     USER_ID VARCHAR2(20) , --UNIQUE 제약 조건 설정
     USER_PW VARCHAR2(30),
  CONSTRAINT COM_NO_ID_UQ UNIQUE(USER_NO, USER_ID)
+
  -- 이러면 USER_NO랑 USER_ID를 DISTINCT처럼 하나로 봐서 UNIQUE가 원하는대로 안된다.
  
  --따로 걸고 싶으면

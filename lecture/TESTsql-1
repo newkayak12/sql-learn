@@ -1,0 +1,14 @@
+ create table test (
+ 
+    name varchar2 (30),
+    id varchar2 (30),
+    
+    constraint hello unique (name)
+    constraint hi foreign key (name) references test_uni(name);
+    
+    );
+    
+    create table test_uni(
+        
+            name varchar2 (30) unique
+    );        

@@ -235,6 +235,9 @@ AND
     FROM TB_STUDENT S
     WHERE (S.STUDENT_NO = G.STUDENT_NO))  = '김명훈';
 
+
+
+-------------------------------------
 select *
 from tb_grade
 where term_no = '200501';
@@ -281,6 +284,9 @@ select *
 from tb_student
 where absence_yn = 'Y';
 
+
+
+-- 이게 답
 delete tb_grade g
 where (
 select absence_yn
